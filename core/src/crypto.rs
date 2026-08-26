@@ -45,8 +45,11 @@ impl EncryptionKey {
         Ok(Self(bytes))
     }
 
-    /// 密钥字节引用（仅 crate 内部使用）。
-    pub(crate) fn as_bytes(&self) -> &[u8; KEY_LEN] {
+    /// 密钥字节引用。
+    ///
+    /// 仅用于与平台安全存储（如系统凭据库）等受信任边界交互；
+    /// 调用方负责在使用后擦除拷贝。
+    pub fn as_bytes(&self) -> &[u8; KEY_LEN] {
         &self.0
     }
 

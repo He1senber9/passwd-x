@@ -9,9 +9,11 @@ mod format;
 mod kdf;
 mod vault;
 
+pub use crypto::EncryptionKey;
 pub use error::{CoreError, Result};
+pub use format::unlock_vault_with_key;
 pub use format::{create_vault, unlock_vault, UnlockedVault};
-pub use kdf::KdfParams;
+pub use kdf::{derive_master_key, KdfParams};
 pub use vault::{Entry, EntryInput, Vault};
 
 /// 当前保险库内容格式版本（v1：整体加密的单文件保险库）。
@@ -22,7 +24,8 @@ pub const MIN_PASSWORD_LEN: usize = 8;
 /// 主密码最大长度（字节数）。
 pub const MAX_PASSWORD_LEN: usize = 1024;
 
-pub(crate) fn validate_password(password: &str) -> Result<()> {
+/// 校验主密码长度约束（新建/解锁/改密共用）。
+pub fn validate_password(password: &str) -> Result<()> {
     if password.chars().count() < MIN_PASSWORD_LEN {
         return Err(CoreError::Validation(format!(
             "master password must be at least {MIN_PASSWORD_LEN} characters"

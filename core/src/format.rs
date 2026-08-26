@@ -40,6 +40,8 @@ struct Header {
 pub struct UnlockedVault {
     vault: Vault,
     dek: EncryptionKey,
+    salt: [u8; SALT_LEN],
+    params: KdfParams,
 }
 
 impl std::fmt::Debug for UnlockedVault {
@@ -54,6 +56,16 @@ impl std::fmt::Debug for UnlockedVault {
 impl UnlockedVault {
     pub fn vault(&self) -> &Vault {
         &self.vault
+    }
+
+    /// 该保险库文件头部使用的 KDF 盐（配合公开的 `derive_master_key` 使用）。
+    pub fn salt(&self) -> [u8; SALT_LEN] {
+        self.salt
+    }
+
+    /// 该保险库文件头部使用的 KDF 参数。
+    pub fn params(&self) -> KdfParams {
+        self.params
     }
 
     pub fn add_entry(&mut self, input: EntryInput) -> Result<Entry> {
@@ -71,10 +83,16 @@ impl UnlockedVault {
     /// 用当前主密码（或新密码，即改密）整体加密保存保险库。
     pub fn save(&self, password: &str, params: &KdfParams) -> Result<Vec<u8>> {
         validate_password(password)?;
+        let master_key = derive_master_key(password, &self.salt, params)?;
+        self.save_with_key(&master_key, params)
+    }
+
+    /// 用已派生的主密钥保存保险库（用于「记住本机」等免密流程）。
+    ///
+    /// 主密钥必须由本保险库文件头部中的盐派生，否则保存后的文件将无法用主密码解锁。
+    pub fn save_with_key(&self, master_key: &EncryptionKey, params: &KdfParams) -> Result<Vec<u8>> {
         params.validate()?;
-        let salt = crypto::random_salt()?;
-        let master_key = derive_master_key(password, &salt, params)?;
-        seal_vault(&self.vault, &self.dek, &master_key, params, salt)
+        seal_vault(&self.vault, &self.dek, master_key, params, self.salt)
     }
 }
 
@@ -87,7 +105,15 @@ pub fn create_vault(password: &str, params: &KdfParams) -> Result<(UnlockedVault
     let dek = EncryptionKey::generate()?;
     let vault = Vault::new();
     let bytes = seal_vault(&vault, &dek, &master_key, params, salt)?;
-    Ok((UnlockedVault { vault, dek }, bytes))
+    Ok((
+        UnlockedVault {
+            vault,
+            dek,
+            salt,
+            params: *params,
+        },
+        bytes,
+    ))
 }
 
 /// 用主密码解锁加密保险库文件。
@@ -95,7 +121,20 @@ pub fn unlock_vault(password: &str, bytes: &[u8]) -> Result<UnlockedVault> {
     validate_password(password)?;
     let (header, ciphertext) = parse_file(bytes)?;
     let master_key = derive_master_key(password, &header.salt, &header.params)?;
+    unlock_with_header(&header, ciphertext, &master_key)
+}
 
+/// 用已派生的主密钥解锁保险库（用于「记住本机」等免密流程）。
+pub fn unlock_vault_with_key(bytes: &[u8], master_key: &EncryptionKey) -> Result<UnlockedVault> {
+    let (header, ciphertext) = parse_file(bytes)?;
+    unlock_with_header(&header, ciphertext, master_key)
+}
+
+fn unlock_with_header(
+    header: &Header,
+    ciphertext: &[u8],
+    master_key: &EncryptionKey,
+) -> Result<UnlockedVault> {
     let aad_wrap = header_bytes(
         &header.params,
         header.salt,
@@ -104,7 +143,7 @@ pub fn unlock_vault(password: &str, bytes: &[u8]) -> Result<UnlockedVault> {
         None,
     )?;
     let dek_bytes = crypto::open(
-        &master_key,
+        master_key,
         &header.wrap_nonce,
         &header.wrapped_dek,
         &aad_wrap,
@@ -132,7 +171,12 @@ pub fn unlock_vault(password: &str, bytes: &[u8]) -> Result<UnlockedVault> {
             vault.version()
         )));
     }
-    Ok(UnlockedVault { vault, dek })
+    Ok(UnlockedVault {
+        vault,
+        dek,
+        salt: header.salt,
+        params: header.params,
+    })
 }
 
 fn seal_vault(

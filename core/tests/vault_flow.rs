@@ -1,6 +1,9 @@
 //! 保险库生命周期集成测试：创建、解锁、CRUD、改密与文件完整性。
 
-use passwd_x_core::{create_vault, unlock_vault, CoreError, EntryInput, KdfParams};
+use passwd_x_core::{
+    create_vault, derive_master_key, unlock_vault, unlock_vault_with_key, CoreError, EntryInput,
+    KdfParams,
+};
 
 const PASSWORD: &str = "correct horse battery staple";
 const PASSWORD_2: &str = "another correct horse battery staple";
@@ -134,4 +137,50 @@ fn custom_params_roundtrip() {
 
     let saved = vault.save(PASSWORD, &params).unwrap();
     unlock_vault(PASSWORD, &saved).unwrap();
+}
+
+#[test]
+fn remembered_key_unlock_and_save_roundtrip() {
+    let params = test_params();
+    let (vault, bytes) = create_vault(PASSWORD, &params).unwrap();
+    let salt = vault.salt();
+    let master_key = derive_master_key(PASSWORD, &salt, &params).unwrap();
+
+    // 免密保存（如「记住本机」后的自动保存），并验证两种解锁路径。
+    let rekeyed = vault.save_with_key(&master_key, &params).unwrap();
+    unlock_vault(PASSWORD, &rekeyed).unwrap();
+    unlock_vault_with_key(&rekeyed, &master_key).unwrap();
+
+    // 原文件仍可用原密码解锁。
+    unlock_vault(PASSWORD, &bytes).unwrap();
+}
+
+#[test]
+fn salt_is_stable_across_saves() {
+    let params = test_params();
+    let (vault, _) = create_vault(PASSWORD, &params).unwrap();
+    let salt = vault.salt();
+
+    let first = vault.save(PASSWORD, &params).unwrap();
+    let second = vault.save(PASSWORD, &params).unwrap();
+    unlock_vault(PASSWORD, &first).unwrap();
+    unlock_vault(PASSWORD, &second).unwrap();
+
+    // 盐在创建与多次保存之间保持不变，保证派生出的 MK 始终有效。
+    assert_eq!(salt, vault.salt());
+}
+
+#[test]
+fn master_key_must_match_file_salt() {
+    let params = test_params();
+    let (vault, _) = create_vault(PASSWORD, &params).unwrap();
+
+    // 用错误的盐派生 MK 保存后，原密码将无法解锁该文件。
+    let wrong_master_key = derive_master_key(PASSWORD, &[9u8; 16], &params).unwrap();
+    let saved = vault.save_with_key(&wrong_master_key, &params).unwrap();
+    let err = unlock_vault(PASSWORD, &saved).unwrap_err();
+    assert!(matches!(err, CoreError::WrongPasswordOrCorrupted));
+
+    // 但该 MK 本人仍可解锁。
+    unlock_vault_with_key(&saved, &wrong_master_key).unwrap();
 }

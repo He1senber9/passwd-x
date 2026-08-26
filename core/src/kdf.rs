@@ -21,7 +21,7 @@ pub const MIN_P_COST: u32 = 1;
 pub const MAX_P_COST: u32 = 8;
 
 /// Argon2id 参数。随加密文件头部存储，解锁时读取并校验。
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct KdfParams {
     /// 内存成本，单位 KiB。
     pub m_cost_kib: u32,
@@ -84,11 +84,7 @@ impl KdfParams {
 /// 用 Argon2id 将主密码派生成 32 字节主密钥。
 ///
 /// 盐可任意长度，建议 16 字节随机值。返回的密钥在内存中零化（zeroize）。
-pub(crate) fn derive_master_key(
-    password: &str,
-    salt: &[u8],
-    params: &KdfParams,
-) -> Result<EncryptionKey> {
+pub fn derive_master_key(password: &str, salt: &[u8], params: &KdfParams) -> Result<EncryptionKey> {
     params.validate()?;
     let argon2_params = Params::new(
         params.m_cost_kib,
@@ -103,6 +99,19 @@ pub(crate) fn derive_master_key(
         .hash_password_into(password.as_bytes(), salt, &mut key)
         .map_err(|e| CoreError::Kdf(e.to_string()))?;
     Ok(EncryptionKey::from(key))
+}
+
+#[cfg(test)]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn kdf_params_serde_roundtrip() {
+        let params = KdfParams::default();
+        let json = serde_json::to_string(&params).unwrap();
+        let back: KdfParams = serde_json::from_str(&json).unwrap();
+        assert_eq!(params, back);
+    }
 }
 
 #[cfg(test)]
