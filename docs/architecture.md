@@ -8,8 +8,8 @@
 
 - 框架：Tauri 2（Rust 核心 + 系统 WebView UI）
 - 前端：React + TypeScript + Vite（待确认）
-- Rust 核心依赖（规划）：`argon2`（Argon2id）、`chacha20poly1305` 或 `aes-gcm`、`zeroize`/`secrecy`、`serde`、`keyring-rs`（桌面凭据库）
-- 存储：自建版本化加密文件；桌面端用系统凭据库保存包装后的密钥
+- Rust 核心依赖（已落地于 `core/`）：`argon2`（Argon2id）、`chacha20poly1305`（XChaCha20-Poly1305）、`zeroize`、`serde`/`serde_json`、`getrandom`、`uuid`；`keyring-rs`（桌面凭据库）待 `app/` 接入
+- 存储：自建版本化加密文件（见 `docs/format.md`）；桌面端用系统凭据库保存包装后的密钥
 
 ## 目录结构
 
