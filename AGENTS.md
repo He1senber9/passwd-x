@@ -17,7 +17,7 @@
 
 ## 当前状态
 
-仓库刚起步：已初始化 Git 并关联远程，已提交 AGENTS.md 与 `.codex/rules/` 命令授权，尚无源代码与工具链。约定发生变化时，请同步更新本文档。
+仓库已具备可构建的 Cargo workspace：`core/` 已实现安全与数据层（Argon2id 派生、AEAD 加解密、版本化保险库格式、记录 CRUD）并配有单元与集成测试；`app/src-tauri/` 仍为占位入口，Tauri 工程与前端待落地。约定发生变化时，请同步更新本文档。
 
 ## 项目结构与模块组织
 
@@ -45,15 +45,22 @@ V2 及以后：自动填充、云同步、生物识别解锁、搜索/分类/标
 
 ## 构建、测试与开发命令
 
-根目录为 Cargo workspace，Rust 命令统一在根目录运行（`cargo check`、`cargo test`）；前端与 Tauri 命令随 `app/` 落地后记录（预期 `tauri dev` 本地运行）。在此之前，不要假定默认命令。
+根目录为 Cargo workspace，Rust 命令统一在根目录运行：
+
+- `cargo check --workspace`
+- `cargo test --workspace`
+- `cargo clippy --workspace --all-targets -- -D warnings`
+- `cargo fmt --check`
+
+前端与 Tauri 命令随 `app/` 落地后记录（预期 `tauri dev` 本地运行）。在此之前，不要假定默认命令。
 
 ## 编码风格与命名约定
 
-尚未配置格式化与 lint 工具，第一个代码 PR 应引入：Rust 用 rustfmt + Clippy，前端用 ESLint + Prettier。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
+Rust 已配置 rustfmt 与 Clippy（workspace lints：`unsafe_code = forbid`、`clippy::all` 警告；提交前需通过 `cargo fmt --check` 与 `cargo clippy --workspace --all-targets -- -D warnings`）。前端待引入 ESLint + Prettier。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
 
 ## 测试指南
 
-尚未配置测试框架。首批测试优先覆盖 `core/`（Argon2id 派生、AEAD 加解密、保险库格式版本化）。测试文件与源码路径对应，按行为命名（如 `test_short_password_rejected`）。
+Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成测试在 `core/tests/`。首批测试已覆盖 `core/`（Argon2id 派生含参考实现标准向量、AEAD 加解密、保险库格式版本化、CRUD 行为）。测试文件与源码路径对应，按行为命名（如 `test_short_password_rejected`）。
 
 ## 提交与拉取请求指南
 
