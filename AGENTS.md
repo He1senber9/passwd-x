@@ -24,10 +24,10 @@
 - `core/` — 跨平台共享代码（禁止依赖 Tauri）
 - `app/src-tauri/` — Tauri Rust 后端与平台接入
 - `app/ui/` — 前端源码
-- `tests/` — 自动化测试，目录结构与对应源码保持一致
-- `assets/` — 静态资源（示例数据、图标等）
-- `docs/` — 设计文档（架构、数据格式等）
-- 根目录 — `README.md`、`.gitignore`、`.codex/rules/`
+- 测试归属各包：Rust 集成测试在 `core/tests/`，前端测试与 E2E 在 `app/` 内，顶层不设统一 `tests/` 目录
+- `assets/` — 仅放共享示例/演示数据；应用图标在 `src-tauri/icons/`，UI 图片在 `app/ui/assets/`
+- `docs/` — 设计文档（`architecture.md`、数据格式等）
+- 根目录 — `Cargo.toml`（workspace，成员 `core` 与 `app/src-tauri`）、`README.md`、`.gitignore`、`.codex/rules/`
 
 核心规则：安全与业务逻辑只进 `core/`，UI 与平台代码不得包含密码逻辑；`core/` 保持框架无关，为将来以 UniFFI 绑定原生移动壳留退路。
 
@@ -45,7 +45,7 @@ V2 及以后：自动填充、云同步、生物识别解锁、搜索/分类/标
 
 ## 构建、测试与开发命令
 
-工具链尚未落地，引入后在此处与 README 记录标准命令（预期：`cargo test` 测试 `core/`，`tauri dev` 本地运行）。在此之前，不要假定默认命令。
+根目录为 Cargo workspace，Rust 命令统一在根目录运行（`cargo check`、`cargo test`）；前端与 Tauri 命令随 `app/` 落地后记录（预期 `tauri dev` 本地运行）。在此之前，不要假定默认命令。
 
 ## 编码风格与命名约定
 

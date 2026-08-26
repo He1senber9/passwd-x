@@ -1,0 +1,6 @@
+[package]
+name = "passwd-x-core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
