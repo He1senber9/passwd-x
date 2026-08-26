@@ -1,0 +1,164 @@
+# Project-local git authorization rules for passwd-x.
+#
+# These rules let Codex run common, non-destructive git commands outside the
+# sandbox without prompting. Destructive operations (hard resets, clean,
+# forced pushes) still require approval.
+
+# --- Read-only inspection ---
+prefix_rule(
+    pattern = ["git", "status"],
+    decision = "allow",
+    justification = "Inspect working tree state.",
+)
+
+prefix_rule(
+    pattern = ["git", "log"],
+    decision = "allow",
+    justification = "Read commit history.",
+)
+
+prefix_rule(
+    pattern = ["git", "diff"],
+    decision = "allow",
+    justification = "Inspect changes.",
+)
+
+prefix_rule(
+    pattern = ["git", "show"],
+    decision = "allow",
+    justification = "Inspect commits and objects.",
+)
+
+prefix_rule(
+    pattern = ["git", "branch"],
+    decision = "allow",
+    justification = "List and inspect branches.",
+)
+
+prefix_rule(
+    pattern = ["git", "remote"],
+    decision = "allow",
+    justification = "Inspect and configure remotes.",
+)
+
+prefix_rule(
+    pattern = ["git", "ls-files"],
+    decision = "allow",
+    justification = "List tracked files.",
+)
+
+# --- Local workflow (staging and committing) ---
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "allow",
+    justification = "Stage changes for commit.",
+    match = ["git add AGENTS.md"],
+)
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "allow",
+    justification = "Create commits.",
+)
+
+# --- History and branch operations ---
+prefix_rule(
+    pattern = ["git", "checkout"],
+    decision = "allow",
+    justification = "Switch branches.",
+)
+
+prefix_rule(
+    pattern = ["git", "checkout", "--"],
+    decision = "prompt",
+    justification = "Discarding working tree changes requires approval.",
+)
+
+prefix_rule(
+    pattern = ["git", "switch"],
+    decision = "allow",
+    justification = "Switch branches.",
+)
+
+prefix_rule(
+    pattern = ["git", "merge"],
+    decision = "allow",
+    justification = "Merge branches.",
+)
+
+prefix_rule(
+    pattern = ["git", "rebase"],
+    decision = "allow",
+    justification = "Rebase branches onto another base.",
+    match = ["git rebase origin/main"],
+)
+
+prefix_rule(
+    pattern = ["git", "stash"],
+    decision = "allow",
+    justification = "Stash and restore local changes.",
+)
+
+# --- Remote synchronization ---
+prefix_rule(
+    pattern = ["git", "fetch"],
+    decision = "allow",
+    justification = "Fetch remote refs.",
+)
+
+prefix_rule(
+    pattern = ["git", "pull"],
+    decision = "allow",
+    justification = "Pull remote changes.",
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "allow",
+    justification = "Push commits to the remote.",
+    match = ["git push origin master"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "prompt",
+    justification = "Force push rewrites remote history; use --force-with-lease instead.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "-f"],
+    decision = "prompt",
+    justification = "Force push rewrites remote history; use --force-with-lease instead.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--delete"],
+    decision = "prompt",
+    justification = "Deleting a remote branch requires approval.",
+)
+
+# --- Repository-local configuration ---
+prefix_rule(
+    pattern = ["git", "config", "user.name"],
+    decision = "allow",
+    justification = "Set the local committer name.",
+)
+
+prefix_rule(
+    pattern = ["git", "config", "user.email"],
+    decision = "allow",
+    justification = "Set the local committer email.",
+)
+
+# --- Destructive operations always require approval ---
+prefix_rule(
+    pattern = ["git", "reset"],
+    decision = "prompt",
+    justification = "Reset can discard commits or staged changes.",
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "prompt",
+    justification = "Clean permanently deletes untracked files.",
+)
