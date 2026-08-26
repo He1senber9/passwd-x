@@ -4,39 +4,55 @@
 
 本项目是一款跨平台密码管理 App，支持桌面端（Windows、macOS、Linux）与移动端（Android、iOS），核心功能是密码记录与安全管理。
 
+## 技术栈与架构
+
+- 基于 **Tauri 2**：一个工程覆盖全部 5 个平台，Rust 核心 + 系统 WebView UI
+- UI 层采用 React + TypeScript + Vite（方案建议，最终选型待确认）
+- 采用「共享核心 + 应用壳」结构：
+  - `core/`：独立 Rust crate，不依赖 Tauri，包含加密、保险库格式、数据模型与业务逻辑
+  - `app/`：Tauri 工程，`src-tauri/` 为 Rust 后端与平台接入，`ui/` 为前端源码
+  - 移动端目标由 Tauri 生成（`src-tauri/gen/android`、`src-tauri/gen/apple`），不进版本库
+- 安全架构：主密码 → Argon2id → 主密钥（MK）；MK 包装随机数据密钥（DEK），DEK 以 AEAD 加密整个保险库；改主密码仅重新包装 DEK；密钥使用后立即从内存擦除（zeroize）
+- 存储：自建版本化加密文件；桌面端用系统凭据库（keyring）保存包装后的密钥
+
 ## 当前状态
 
-本仓库尚处于初始状态：还没有源代码、构建工具链或提交历史。以下指南定义了项目成型过程中贡献者应遵循的约定。约定发生变化时，请同步更新本文档。
+仓库刚起步：已初始化 Git 并关联远程，已提交 AGENTS.md 与 `.codex/rules/` 命令授权，尚无源代码与工具链。约定发生变化时，请同步更新本文档。
 
 ## 项目结构与模块组织
 
-建议采用「共享核心 + 平台壳」的结构，最大化复用业务逻辑：
-
-- `core/` — 跨平台共享代码：加密、密码存储、数据模型与业务逻辑
-- `desktop/` — 桌面端（Windows、macOS、Linux）
-- `mobile/` — 移动端（Android、iOS）
+- `core/` — 跨平台共享代码（禁止依赖 Tauri）
+- `app/src-tauri/` — Tauri Rust 后端与平台接入
+- `app/ui/` — 前端源码
 - `tests/` — 自动化测试，目录结构与对应源码保持一致
 - `assets/` — 静态资源（示例数据、图标等）
-- `docs/` — 扩展文档
-- `README.md`、`.gitignore` 及工具配置文件位于仓库根目录
+- `docs/` — 设计文档（架构、数据格式等）
+- 根目录 — `README.md`、`.gitignore`、`.codex/rules/`
 
-平台相关代码只负责 UI 与系统能力接入（如系统安全存储），核心逻辑一律放在共享层，避免平台间重复实现。
+核心规则：安全与业务逻辑只进 `core/`，UI 与平台代码不得包含密码逻辑；`core/` 保持框架无关，为将来以 UniFFI 绑定原生移动壳留退路。
+
+## V1 范围（计划）
+
+- 本地加密保险库 + 主密码解锁
+- 桌面全平台；移动端查看与复制
+- 生物识别解锁（需原生桥接，真机验证）
+- V1 暂不做：自动填充、云同步
 
 ## 构建、测试与开发命令
 
-目前尚未配置构建或测试工具链。引入后，请在此处及 README 中按平台记录标准命令，例如桌面端构建、移动端构建、测试与本地运行命令。在此之前，不要假定语言、包管理器或默认命令。
+工具链尚未落地，引入后在此处与 README 记录标准命令（预期：`cargo test` 测试 `core/`，`tauri dev` 本地运行）。在此之前，不要假定默认命令。
 
 ## 编码风格与命名约定
 
-目前尚未配置代码格式化工具或 linter。第一个提交代码的 PR 应引入所选语言的标准格式化与静态检查工具，并在此处注明。文件与符号的命名应清晰描述用途，并与语言生态保持一致（例如 Python 使用 `snake_case`，JavaScript/TypeScript 使用 `camelCase`）。保持改动可读：每个提交只包含一个逻辑变更。
+尚未配置格式化与 lint 工具，第一个代码 PR 应引入：Rust 用 rustfmt + Clippy，前端用 ESLint + Prettier。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
 
 ## 测试指南
 
-目前尚未配置测试框架。首批测试应优先覆盖共享核心层（加密、密码存储等关键逻辑），并在此处记录覆盖率要求。测试文件放在 `tests/` 中，与源码路径一一对应，并按行为命名（如 `test_short_password_rejected`）。
+尚未配置测试框架。首批测试优先覆盖 `core/`（Argon2id 派生、AEAD 加解密、保险库格式版本化）。测试文件与源码路径对应，按行为命名（如 `test_short_password_rejected`）。
 
 ## 提交与拉取请求指南
 
-仓库还没有提交历史。请从第一个提交开始采用 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。
+已有提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。
 
 ## 安全与配置提示
 
@@ -46,3 +62,4 @@
 - 敏感数据必须使用系统安全存储（如 iOS Keychain、Android Keystore、桌面系统凭据库）
 - 在 `.gitignore` 中添加本地配置与环境文件的忽略规则（例如 `.env`、`*.local`）
 - `assets/` 中的示例数据仅用于演示，绝不能包含真实凭据
+- 日志与错误信息不得包含敏感内容
