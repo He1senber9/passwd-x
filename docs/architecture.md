@@ -7,7 +7,7 @@
 ## 技术选型
 
 - 框架：Tauri 2（Rust 核心 + 系统 WebView UI）
-- 前端：React + TypeScript + Vite（待确认）
+- 前端：React + TypeScript + Vite（已落地于 `app/ui/`）
 - Rust 核心依赖（已落地于 `core/`）：`argon2`（Argon2id）、`chacha20poly1305`（XChaCha20-Poly1305）、`zeroize`、`serde`/`serde_json`、`getrandom`、`uuid`；`keyring-rs`（桌面凭据库）待 `app/` 接入
 - 存储：自建版本化加密文件（见 `docs/format.md`）；桌面端用系统凭据库保存包装后的密钥
 
@@ -55,6 +55,6 @@ v1 整体加密一个保险库文件；若未来引入云同步，再迁移为�
 
 ## 平台接入
 
-- 桌面端：`keyring-rs` 访问系统凭据库（Windows Credential Manager、macOS Keychain、Linux Secret Service）
+- 桌面端：`keyring-rs` 访问系统凭据库（Windows Credential Manager、macOS Keychain、Linux Secret Service）；V1 的「记住本机」将已派生的主密钥（MK）存入系统凭据库，用于免密解锁与免密保存，用户需显式勾选开启
 - 移动端：Keychain / Keystore 方案待定（V1 仅需保存包装后的密钥）
 - V2 再评估：生物识别解锁、自动填充（iOS Credential Provider / Android Autofill 原生扩展）

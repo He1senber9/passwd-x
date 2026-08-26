@@ -7,7 +7,7 @@
 ## 技术栈与架构
 
 - 基于 **Tauri 2**：一个工程覆盖全部 5 个平台，Rust 核心 + 系统 WebView UI
-- UI 层采用 React + TypeScript + Vite（方案建议，最终选型待确认）
+- UI 层采用 React + TypeScript + Vite（已落地于 `app/ui/`）
 - 采用「共享核心 + 应用壳」结构：
   - `core/`：独立 Rust crate，不依赖 Tauri，包含加密、保险库格式、数据模型与业务逻辑
   - `app/`：Tauri 工程，`src-tauri/` 为 Rust 后端与平台接入，`ui/` 为前端源码
@@ -17,7 +17,7 @@
 
 ## 当前状态
 
-仓库已具备可构建的 Cargo workspace：`core/` 已实现安全与数据层（Argon2id 派生、AEAD 加解密、版本化保险库格式、记录 CRUD）并配有单元与集成测试；`app/src-tauri/` 仍为占位入口，Tauri 工程与前端待落地。约定发生变化时，请同步更新本文档。
+仓库已具备可构建的 Cargo workspace 与 Tauri 应用壳：`core/` 已实现安全与数据层（Argon2id 派生、AEAD 加解密、版本化保险库格式、记录 CRUD、免密解锁所需的「已派生主密钥」API）并配有单元与集成测试；`app/` 已落地 Tauri 2 后端（会话状态、vault 命令层、keyring「记住本机」）与 React + TypeScript + Vite 前端（解锁/建库/记录 CRUD）。约定发生变化时，请同步更新本文档。
 
 ## 项目结构与模块组织
 
@@ -52,7 +52,14 @@ V2 及以后：自动填充、云同步、生物识别解锁、搜索/分类/标
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo fmt --check`
 
-前端与 Tauri 命令随 `app/` 落地后记录（预期 `tauri dev` 本地运行）。在此之前，不要假定默认命令。
+Linux 桌面端编译 Tauri 需要系统开发包：`pkg-config`、`libwebkit2gtk-4.1-dev`、`libgtk-3-dev`、`libsoup-3.0-dev`、`libjavascriptcoregtk-4.1-dev`（含其传递依赖）。前端与 Tauri 命令在 `app/` 目录运行：
+
+- `npm install`
+- `npm run dev` — 仅启动 Vite 开发服务器
+- `npm run build` — TypeScript 检查 + 前端产物构建
+- `npm run tauri dev` — 本地运行桌面应用
+
+移动端目标由 Tauri 生成（`src-tauri/gen/`），不进版本库。
 
 ## 编码风格与命名约定
 
