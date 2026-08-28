@@ -1,7 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "passwd-x",
-  "version": "0.1.0",
   "identifier": "com.passwdx.app",
   "build": {
     "beforeDevCommand": "npm run dev",
