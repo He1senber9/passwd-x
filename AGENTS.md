@@ -26,7 +26,7 @@
 - `app/ui/` — 前端源码
 - 测试归属各包：Rust 集成测试在 `core/tests/`，前端测试与 E2E 在 `app/` 内，顶层不设统一 `tests/` 目录
 - `assets/` — 仅放共享示例/演示数据；应用图标在 `src-tauri/icons/`，UI 图片在 `app/ui/assets/`
-- `docs/` — 设计文档（`architecture.md`、数据格式等）
+- `docs/` — 设计文档（`architecture.md`、`format.md`、`task-list.md` 功能任务清单）
 - 根目录 — `Cargo.toml`（workspace，成员 `core` 与 `app/src-tauri`）、`README.md`、`.gitignore`、`.codex/rules/`
 
 核心规则：安全与业务逻辑只进 `core/`，UI 与平台代码不得包含密码逻辑；`core/` 保持框架无关，为将来以 UniFFI 绑定原生移动壳留退路。
