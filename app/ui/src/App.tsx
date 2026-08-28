@@ -50,7 +50,9 @@ export default function App() {
   }, [refresh]);
 
   useEffect(() => {
-    getVersion().then(setVersion).catch(() => {});
+    getVersion()
+      .then(setVersion)
+      .catch(() => {});
   }, []);
 
   const run = useCallback(async (action: () => Promise<unknown>) => {
@@ -214,7 +216,11 @@ export default function App() {
             {mode === "create" ? "创建并解锁" : "解锁"}
           </button>
           {mode === "unlock" && status.hasVault && (
-            <button disabled={busy} onClick={unlockRemembered} className="ghost">
+            <button
+              disabled={busy}
+              onClick={unlockRemembered}
+              className="ghost"
+            >
               使用已保存的本机凭据
             </button>
           )}
@@ -267,7 +273,10 @@ export default function App() {
                   <td>{entry.urls.join(", ") || "—"}</td>
                   <td className="row">
                     <button onClick={() => openEdit(entry)}>编辑</button>
-                    <button onClick={() => removeEntry(entry)} className="danger">
+                    <button
+                      onClick={() => removeEntry(entry)}
+                      className="danger"
+                    >
                       删除
                     </button>
                   </td>
