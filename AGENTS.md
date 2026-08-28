@@ -57,13 +57,14 @@ Linux 桌面端编译 Tauri 需要系统开发包：`pkg-config`、`libwebkit2gt
 - `npm install`
 - `npm run dev` — 仅启动 Vite 开发服务器
 - `npm run build` — TypeScript 检查 + 前端产物构建
+- `npm run format` / `npm run format:check` — Prettier 格式化/校验前端代码
 - `npm run tauri dev` — 本地运行桌面应用
 
 移动端目标由 Tauri 生成（`src-tauri/gen/`），不进版本库。
 
 ## 编码风格与命名约定
 
-Rust 已配置 rustfmt 与 Clippy（workspace lints：`unsafe_code = forbid`、`clippy::all` 警告；提交前需通过 `cargo fmt --check` 与 `cargo clippy --workspace --all-targets -- -D warnings`）。前端待引入 ESLint + Prettier。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
+Rust 已配置 rustfmt 与 Clippy（workspace lints：`unsafe_code = forbid`、`clippy::all` 警告；提交前需通过 `cargo fmt --check` 与 `cargo clippy --workspace --all-targets -- -D warnings`）。前端使用 Prettier 统一格式化（`npm run format`，校验用 `npm run format:check`），ESLint 待引入。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
 
 ## 测试指南
 
@@ -71,7 +72,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 ## 提交与拉取请求指南
 
-提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。**提交信息（标题与正文）一律使用中文**，类型前缀按规范保留英文（如 `feat: 增加导出功能`）。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。
+提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。**提交信息（标题与正文）一律使用中文**，类型前缀按规范保留英文（如 `feat: 增加导出功能`）。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。提交前会自动执行 `cargo fmt` 与 Prettier 格式化（钩子在 `.githooks/pre-commit`，首次克隆后需执行 `git config core.hooksPath .githooks` 启用）。
 
 ## 版本管理
 

@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# 提交前自动格式化：
+# - Rust：cargo fmt（按 workspace 配置）
+# - 前端与配置文件：prettier（仅格式化已暂存文件，并重新暂存）
+set -e
+
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+
+staged_rs="$(git diff --cached --name-only --diff-filter=ACM -- '*.rs')"
+if [ -n "$staged_rs" ]; then
+  cargo fmt --all
+  printf '%s\n' "$staged_rs" | xargs git add --
+fi
+
+staged_prettier="$(git diff --cached --name-only --diff-filter=ACM -- '*.ts' '*.tsx' '*.js' '*.mjs' '*.cjs' '*.css' '*.json')"
+if [ -n "$staged_prettier" ]; then
+  printf '%s\n' "$staged_prettier" | xargs app/node_modules/.bin/prettier --write
+  printf '%s\n' "$staged_prettier" | xargs git add --
+fi
