@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { getVersion } from "@tauri-apps/api/app";
+
 import { api } from "./api";
 import type { Entry, EntryInput, VaultStatus } from "./types";
 
@@ -16,6 +18,7 @@ const emptyForm: EntryInput = {
 export default function App() {
   const [status, setStatus] = useState<VaultStatus | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [version, setVersion] = useState<string | null>(null);
 
   const [mode, setMode] = useState<LockedMode>("unlock");
   const [password, setPassword] = useState("");
@@ -45,6 +48,10 @@ export default function App() {
   useEffect(() => {
     refresh().catch((err) => setError(String(err)));
   }, [refresh]);
+
+  useEffect(() => {
+    getVersion().then(setVersion).catch(() => {});
+  }, []);
 
   const run = useCallback(async (action: () => Promise<unknown>) => {
     setBusy(true);
@@ -157,7 +164,9 @@ export default function App() {
       <div className="screen">
         <div className="card">
           <h1>passwd-x</h1>
-          <p className="muted">本地加密保险库</p>
+          <p className="muted">
+            本地加密保险库{version ? ` · v${version}` : ""}
+          </p>
 
           <div className="tabs">
             {status.hasVault && (
@@ -219,7 +228,9 @@ export default function App() {
   return (
     <div className="screen">
       <header className="toolbar">
-        <h1>passwd-x</h1>
+        <h1>
+          passwd-x{version ? <span className="muted"> v{version}</span> : null}
+        </h1>
         <div className="spacer" />
         <button onClick={() => setChangingPassword(true)}>修改主密码</button>
         <button onClick={forget}>忘记本机凭据</button>
