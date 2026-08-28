@@ -70,6 +70,13 @@ Rust 已配置 rustfmt 与 Clippy（workspace lints：`unsafe_code = forbid`、`
 
 Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成测试在 `core/tests/`。首批测试已覆盖 `core/`（Argon2id 派生含参考实现标准向量、AEAD 加解密、保险库格式版本化、CRUD 行为）。测试文件与源码路径对应，按行为命名（如 `test_short_password_rejected`）。
 
+## 开发流程
+
+- 功能开发一律使用 `git worktree`：从干净的 `master` 拉出独立工作目录与分支，不在 `master` 工作区直接改代码。示例：`git worktree add ../passwd-x-task-auto-lock -b task-auto-lock`
+- 分支命名：`task-<改造点，2-3 个英文小写单词，用连字符分隔>`，例如 `task-auto-lock`、`task-mobile-build`、`task-docs-task-list`
+- 开发完成并在该 worktree 内通过全部检查（`cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`）后，推送分支并创建 PR（标题与摘要使用中文）；合并到 `master` 必须走 PR
+- PR 合并后清理：删除对应 worktree（`git worktree remove`），并删除本地与远程分支
+
 ## 提交与拉取请求指南
 
 提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。**提交信息（标题与正文）一律使用中文**，类型前缀按规范保留英文（如 `feat: 增加导出功能`）。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。提交前会自动执行 `cargo fmt` 与 Prettier 格式化（钩子在 `.githooks/pre-commit`，首次克隆后需执行 `git config core.hooksPath .githooks` 启用）。
