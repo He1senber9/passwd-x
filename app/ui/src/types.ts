@@ -19,5 +19,6 @@ export interface EntryInput {
 
 export interface VaultStatus {
   unlocked: boolean;
+  hasVault: boolean;
   entryCount: number;
 }

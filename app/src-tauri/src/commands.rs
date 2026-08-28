@@ -83,17 +83,26 @@ impl From<&passwd_x_core::Entry> for EntryPayload {
 #[derive(Serialize)]
 pub struct VaultStatus {
     pub unlocked: bool,
+    pub has_vault: bool,
     pub entry_count: usize,
 }
 
-fn status_of(session: &Option<Session>) -> VaultStatus {
+fn status_of(session: &Option<Session>, has_vault: bool) -> VaultStatus {
     VaultStatus {
         unlocked: session.is_some(),
+        has_vault,
         entry_count: session
             .as_ref()
             .map(|s| s.vault.vault().count())
             .unwrap_or(0),
     }
+}
+
+fn vault_file_exists(app: &AppHandle) -> bool {
+    app.path()
+        .app_data_dir()
+        .map(|dir| dir.join(VAULT_FILE_NAME).exists())
+        .unwrap_or(false)
 }
 
 fn vault_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -121,9 +130,9 @@ fn save_session(app: &AppHandle, session: &Session) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn vault_status(state: State<'_, VaultState>) -> VaultStatus {
+pub fn vault_status(app: AppHandle, state: State<'_, VaultState>) -> VaultStatus {
     let guard = state.0.lock().expect("vault state poisoned");
-    status_of(&guard)
+    status_of(&guard, vault_file_exists(&app))
 }
 
 #[tauri::command]
@@ -153,7 +162,7 @@ pub fn create_vault(
     };
     let mut guard = state.0.lock().expect("vault state poisoned");
     *guard = Some(session);
-    Ok(status_of(&guard))
+    Ok(status_of(&guard, true))
 }
 
 #[tauri::command]
@@ -182,7 +191,7 @@ pub fn unlock_vault(
     };
     let mut guard = state.0.lock().expect("vault state poisoned");
     *guard = Some(session);
-    Ok(status_of(&guard))
+    Ok(status_of(&guard, true))
 }
 
 #[tauri::command]
@@ -204,7 +213,7 @@ pub fn unlock_remembered(
     };
     let mut guard = state.0.lock().expect("vault state poisoned");
     *guard = Some(session);
-    Ok(status_of(&guard))
+    Ok(status_of(&guard, true))
 }
 
 #[tauri::command]

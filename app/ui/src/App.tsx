@@ -36,6 +36,9 @@ export default function App() {
   const refresh = useCallback(async () => {
     const next = await api.status();
     setStatus(next);
+    if (!next.unlocked) {
+      setMode(next.hasVault ? "unlock" : "create");
+    }
     setEntries(next.unlocked ? await api.listEntries() : []);
   }, []);
 
@@ -157,12 +160,14 @@ export default function App() {
           <p className="muted">本地加密保险库</p>
 
           <div className="tabs">
-            <button
-              className={mode === "unlock" ? "active" : ""}
-              onClick={() => setMode("unlock")}
-            >
-              解锁
-            </button>
+            {status.hasVault && (
+              <button
+                className={mode === "unlock" ? "active" : ""}
+                onClick={() => setMode("unlock")}
+              >
+                解锁
+              </button>
+            )}
             <button
               className={mode === "create" ? "active" : ""}
               onClick={() => setMode("create")}
@@ -199,7 +204,7 @@ export default function App() {
           <button disabled={busy} onClick={submitLocked} className="primary">
             {mode === "create" ? "创建并解锁" : "解锁"}
           </button>
-          {mode === "unlock" && (
+          {mode === "unlock" && status.hasVault && (
             <button disabled={busy} onClick={unlockRemembered} className="ghost">
               使用已保存的本机凭据
             </button>
