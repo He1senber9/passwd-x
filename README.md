@@ -23,4 +23,8 @@
 
 Linux 桌面端需先安装 Tauri 的系统开发包（webkit2gtk-4.1、gtk-3、libsoup-3 等，见 `AGENTS.md`）。
 
+## 版本与发布
+
+版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。每次合并到 `master` 后，release-please 会自动创建/更新 release PR（升版本号、更新 `CHANGELOG.md`），合并该 PR 即打 `vX.Y.Z` tag 并发布。
+
 详见 `AGENTS.md` 与 `docs/architecture.md`。

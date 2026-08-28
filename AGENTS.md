@@ -73,6 +73,13 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。**提交信息（标题与正文）一律使用中文**，类型前缀按规范保留英文（如 `feat: 增加导出功能`）。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。
 
+## 版本管理
+
+- 版本号唯一来源是根 `Cargo.toml` 的 `[workspace.package].version`；`app/src-tauri/tauri.conf.json` 不再写版本（打包时自动从 Cargo.toml 读取），`app/package.json` 由 release-please 同步
+- 每次合并到 `master` 后，release-please（GitHub Actions）扫描 Conventional Commits，自动创建/更新 release PR：升版本号并维护根目录 `CHANGELOG.md`；合并该 PR 后自动打 `vX.Y.Z` tag 并创建 GitHub Release
+- 版本策略：1.0 之前 `feat:` 与破坏性变更升 minor、`fix:` 升 patch；1.0 之后按标准 SemVer
+- 界面显示的版本号通过 Tauri `getVersion()` 从构建产物读取，无需手工维护
+
 ## 安全与配置提示
 
 密码管理类应用对安全要求高，请严格遵守：
