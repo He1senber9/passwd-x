@@ -74,6 +74,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 - 功能开发一律使用 `git worktree`：从干净的 `master` 拉出独立工作目录与分支，不在 `master` 工作区直接改代码。示例：`git worktree add ../passwd-x-task-auto-lock -b task-auto-lock`
 - 分支命名：`task-<改造点，2-3 个英文小写单词，用连字符分隔>`，例如 `task-auto-lock`、`task-mobile-build`、`task-docs-task-list`
+- 双代理流程由个人 skill 指导：`task-developer` 负责开发（worktree、检查、创建 PR），`pr-approver` 负责审批（安全审查、bot 身份 approve 与合并），位于 `~/.codex/skills/`
 - 开发完成并在该 worktree 内通过全部检查（`cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`）后，推送分支并创建 PR（标题与摘要使用中文）；合并到 `master` 必须走 PR
 - PR 合并后清理：删除对应 worktree（`git worktree remove`），并删除本地与远程分支
 
