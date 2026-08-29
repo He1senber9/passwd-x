@@ -232,6 +232,33 @@ ${feedback ? `上一轮 QA/审核意见（须逐一修复并补充回归验证�
       );
       return { role: "前端", skipped: false, out };
     },
+    async () => {
+      // 纯文档/运维任务（BE 与 FE 均不需要）：通用实现角色直接在集成分支产出交付物
+      if (needsBackend || needsFrontend) {
+        return { role: "通用实现", skipped: true };
+      }
+      const out = await agent(
+        `${READ_FIRST}
+你是 passwd-x 的实现工程师（通用）。任务：${title} —— ${desc}
+实现依据：${TASKDIR}/design.md、${TASKDIR}/plan.md、${TASKDIR}/prd.md
+工作目录：${WT}（集成分支 ${BRANCH}，直接在此提交）
+
+本任务为纯文档/运维类（needsBackend=false 且 needsFrontend=false），无独立开发分支：
+按 design.md 与 prd.md 在集成分支直接产出交付物（如 docs/guide.md）并提交。
+
+要求：
+- 产出物须满足 prd.md 的全部 AC（QA 将逐条核对）
+- 遵守 design.md 的结构与约定；若 ${WT}/app/node_modules 缺失：
+  ln -sfn ${REPO}/app/node_modules ${WT}/app/node_modules
+- 每个提交只含一个逻辑变更，提交信息中文（docs:/feat:/chore: 等）
+- 门槛：cargo fmt --check、cargo clippy --workspace --all-targets -- -D warnings、
+  cargo test --workspace、npm run format:check、npm run build
+${feedback ? `上一轮 QA/审核意见（须逐一修复并补充回归验证）：\n${feedback}` : ""}
+完成后汇报：交付物清单、门槛结果、提交列表。`,
+        { label: "通用实现", phase: "开发实现" },
+      );
+      return { role: "通用实现", skipped: false, out };
+    },
   ]);
   log(`开发结果：${JSON.stringify(dev)}`);
   if (dev.some((d) => d && !d.skipped && d.out === null)) {
