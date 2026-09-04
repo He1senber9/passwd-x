@@ -62,6 +62,8 @@ Linux 桌面端编译 Tauri 需要系统开发包：`pkg-config`、`libwebkit2gt
 
 移动端目标由 Tauri 生成（`src-tauri/gen/`），不进版本库。
 
+构建安装包（`npm run tauri build`）需要提供更新签名私钥环境变量 `TAURI_SIGNING_PRIVATE_KEY`（或 `TAURI_SIGNING_PRIVATE_KEY_PATH`），否则无法生成 updater 签名产物。
+
 ## 编码风格与命名约定
 
 Rust 已配置 rustfmt 与 Clippy（workspace lints：`unsafe_code = forbid`、`clippy::all` 警告；提交前需通过 `cargo fmt --check` 与 `cargo clippy --workspace --all-targets -- -D warnings`）。前端使用 Prettier 统一格式化（`npm run format`，校验用 `npm run format:check`），ESLint 待引入。命名遵循语言生态（Rust `snake_case`；TypeScript `camelCase`、组件 `PascalCase`）。每个提交只包含一个逻辑变更。
@@ -87,6 +89,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 - 版本号唯一来源是根 `Cargo.toml` 的 `[workspace.package].version`；`app/src-tauri/tauri.conf.json` 不再写版本（打包时自动从 Cargo.toml 读取），`app/package.json` 由 release-please 同步
 - 每次合并到 `master` 后，release-please（GitHub Actions）扫描 Conventional Commits，自动创建/更新 release PR：升版本号并维护根目录 `CHANGELOG.md`；合并该 PR 后自动打 `vX.Y.Z` tag 并创建 GitHub Release
+- 应用内自动更新使用 Tauri 官方 updater 插件：GitHub Release 发布后由 `release` workflow 构建三平台安装包、签名并上传 `latest.json`；签名私钥存于 GitHub Secret `TAURI_SIGNING_PRIVATE_KEY`，公钥写于 `app/src-tauri/tauri.conf.json`
 - 版本策略：1.0 之前 `feat:` 与破坏性变更升 minor、`fix:` 升 patch；1.0 之后按标准 SemVer
 - 界面显示的版本号通过 Tauri `getVersion()` 从构建产物读取，无需手工维护
 
@@ -96,6 +99,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 - 严禁提交密钥、API Key、主密码或任何真实用户数据
 - 敏感数据必须使用系统安全存储（如 iOS Keychain、Android Keystore、桌面系统凭据库）
+- 更新签名私钥只存于 GitHub Secret `TAURI_SIGNING_PRIVATE_KEY`，公钥可入库；私钥丢失将无法继续向已安装用户发布更新
 - 在 `.gitignore` 中添加本地配置与环境文件的忽略规则（例如 `.env`、`*.local`）
 - `assets/` 中的示例数据仅用于演示，绝不能包含真实凭据
 - 日志与错误信息不得包含敏感内容

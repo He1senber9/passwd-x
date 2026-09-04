@@ -9,6 +9,16 @@ use state::VaultState;
 fn main() {
     tauri::Builder::default()
         .manage(VaultState::default())
+        .setup(|app| {
+            // 自动更新仅支持桌面端；移动端走应用商店分发，不注册该插件。
+            #[cfg(desktop)]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                app.handle().plugin(tauri_plugin_process::init())?;
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::vault_status,
             commands::create_vault,
