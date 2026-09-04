@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/He1senber9/passwd-x/compare/v0.2.0...v0.3.0) (2026-09-04)
+
+
+### Features
+
+* 增加应用内自动更新 ([dadc611](https://github.com/He1senber9/passwd-x/commit/dadc61166adbd81bb0751981430fe0bd35d64343))
+* 增加应用内自动更新 ([1720e4a](https://github.com/He1senber9/passwd-x/commit/1720e4a9964b696a79a7fafe0d5f57027d36bc47))
+
 ## [0.2.0](https://github.com/He1senber9/passwd-x/compare/v0.1.0...v0.2.0) (2026-08-29)
 
 
