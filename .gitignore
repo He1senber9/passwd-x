@@ -12,6 +12,8 @@ app/src-tauri/gen/
 # Local environment & secrets
 .env
 *.local
+*.key
+*.key.pub
 
 # OS
 .DS_Store

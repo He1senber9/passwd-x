@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { getVersion } from "@tauri-apps/api/app";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check, type Update } from "@tauri-apps/plugin-updater";
 
 import { api } from "./api";
 import type { Entry, EntryInput, VaultStatus } from "./types";
@@ -35,6 +37,14 @@ export default function App() {
 
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const [updateInfo, setUpdateInfo] = useState<Update | null>(null);
+  const [updateDialog, setUpdateDialog] = useState(false);
+  const [updateProgress, setUpdateProgress] = useState<{
+    downloaded: number;
+    total: number;
+  } | null>(null);
+  const [updateNotice, setUpdateNotice] = useState("");
 
   const refresh = useCallback(async () => {
     const next = await api.status();
@@ -157,6 +167,51 @@ export default function App() {
     });
   };
 
+  const checkUpdate = () =>
+    run(async () => {
+      const update = await check();
+      if (!update) {
+        setUpdateNotice(`已是最新版本（v${version ?? ""}）`);
+        return;
+      }
+      setUpdateInfo(update);
+      setUpdateProgress(null);
+      setUpdateNotice("");
+      setUpdateDialog(true);
+    });
+
+  const installUpdate = () =>
+    run(async () => {
+      if (!updateInfo) return;
+      setUpdateNotice("");
+      setUpdateProgress({ downloaded: 0, total: 0 });
+      await updateInfo.downloadAndInstall((event) => {
+        if (event.event === "Started") {
+          setUpdateProgress({
+            downloaded: 0,
+            total: event.data.contentLength ?? 0,
+          });
+        } else if (event.event === "Progress") {
+          setUpdateProgress((p) => ({
+            downloaded: (p?.downloaded ?? 0) + event.data.chunkLength,
+            total: p?.total ?? 0,
+          }));
+        } else if (event.event === "Finished") {
+          setUpdateNotice("下载完成，正在安装…");
+        }
+      });
+      // macOS / Linux 安装后需重启以运行新版本（Windows 安装器会自动退出并重启）。
+      await relaunch();
+    });
+
+  const updatePercent =
+    updateProgress && updateProgress.total > 0
+      ? Math.min(
+          100,
+          Math.round((updateProgress.downloaded / updateProgress.total) * 100),
+        )
+      : null;
+
   if (status === null) {
     return <div className="center">载入中…</div>;
   }
@@ -225,6 +280,13 @@ export default function App() {
             </button>
           )}
 
+          <div className="row between update-footer">
+            <button disabled={busy} onClick={checkUpdate} className="ghost">
+              检查更新
+            </button>
+            {updateNotice && <span className="muted">{updateNotice}</span>}
+          </div>
+
           {error && <p className="error">{error}</p>}
         </div>
       </div>
@@ -238,6 +300,9 @@ export default function App() {
           passwd-x{version ? <span className="muted"> v{version}</span> : null}
         </h1>
         <div className="spacer" />
+        <button onClick={checkUpdate} disabled={busy}>
+          检查更新
+        </button>
         <button onClick={() => setChangingPassword(true)}>修改主密码</button>
         <button onClick={forget}>忘记本机凭据</button>
         <button onClick={lock}>锁定</button>
@@ -252,6 +317,7 @@ export default function App() {
         </div>
 
         {error && <p className="error">{error}</p>}
+        {updateNotice && <p className="muted">{updateNotice}</p>}
 
         {entries.length === 0 ? (
           <p className="muted empty">还没有记录，点击「新增记录」开始。</p>
@@ -379,6 +445,49 @@ export default function App() {
                 className="primary"
               >
                 确认修改
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {updateDialog && updateInfo && (
+        <div className="overlay">
+          <div className="card">
+            <h2>发现新版本</h2>
+            <p>
+              当前版本 v{version ?? "?"} → 新版本 v{updateInfo.version}
+            </p>
+            {updateInfo.body && (
+              <p className="muted update-body">{updateInfo.body}</p>
+            )}
+            {updatePercent !== null && (
+              <div className="progress">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${updatePercent}%` }}
+                />
+              </div>
+            )}
+            {updateNotice && <p className="muted">{updateNotice}</p>}
+            {error && <p className="error">{error}</p>}
+            <div className="row">
+              <button
+                onClick={() => {
+                  setUpdateDialog(false);
+                  setUpdateInfo(null);
+                  setUpdateProgress(null);
+                }}
+                disabled={busy}
+              >
+                稍后再说
+              </button>
+              <button
+                onClick={installUpdate}
+                disabled={busy}
+                className="primary"
+              >
+                {busy ? "更新中…" : "立即更新"}
               </button>
             </div>
           </div>
