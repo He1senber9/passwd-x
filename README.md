@@ -31,6 +31,7 @@ Linux 桌面端需先安装 Tauri 的系统开发包（webkit2gtk-4.1、gtk-3、
 AI 团队以角色 skill 协作：产品经理维护待办，项目经理排期，系统架构师按 master-dev-release-hotfix 建分支并产出设计文档，开发与测试并行实现，PR 审核员把关合并。详见 `AGENTS.md` 与 `docs/team.md`。
 
 ```mermaid
+%%{init: { 'gitGraph': { 'mainBranchName': 'master' } } }%%
 gitGraph
    commit id: "v0.1.0"
    branch dev
