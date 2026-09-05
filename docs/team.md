@@ -14,7 +14,7 @@
 | PR 审核员 | `team-pr-reviewer` | 代码质量与安全审查、合并 PR | `docs/tasks/<slug>/review.md` |
 | 系统运维 | `team-release-ops` | 定时/手动发布，构建并上传 GitHub | `CHANGELOG.md`、Release 产物 |
 
-## 分支模型（master-dev-release-hotfix）
+## 分支模型（Git Flow 轻量）
 
 ```text
 master ───────────────●──────────────●  稳定生产，只接收 release/* 与 hotfix/*
@@ -27,6 +27,14 @@ dev ─────●────●────●───┴────●�
 - `feature/<slug>`：功能任务，自 `dev` 拉出，完成后 PR 回 `dev`。
 - `release/<semver>`：发布准备，自 `dev` 拉出，完成后 PR 到 `master`（打 tag），再回并 `dev`。
 - `hotfix/<slug>`：紧急修复，自 `master` 拉出，完成后 PR 到 `master`（打 tag），再回并 `dev`。
+
+**轻量原则**：
+
+- `release/*` 只在真正发版那一周从 `dev` 切出，合并后立即清理，不长期并行。
+- `feature/*` 短命：一个任务一个分支，合并即删。
+- `hotfix/*` 保留：从 `master` 出、修完合 `master` 并回并 `dev`，是版本化产品最有价值的部分。
+
+**进一步简化（可选）**：若想更接近 trunk-based，可去掉长期 `dev`，以 `master` 为唯一主干，`feature/*` 直接 PR 回 `master`，仅在发版周切 `release/<semver>`。
 
 ## 阶段流转
 
