@@ -81,7 +81,7 @@ passwd-x/
 ├── Cargo.lock
 ├── README.md             # 极简入口
 ├── AGENTS.md             # 仓库规范（开发流程、命令、编码约定、安全要求）
-├── CHANGELOG.md          # 由 release-please 自动维护
+├── CHANGELOG.md          # 由发布流水线自动维护
 ├── core/                 # 共享 Rust 核心 crate（禁止依赖 Tauri）
 │   ├── src/              #   加密、保险库格式、数据模型与业务逻辑
 │   └── tests/            #   Rust 集成测试
@@ -99,7 +99,7 @@ passwd-x/
 │   ├── tasks/            #   各任务的需求 / 规划 / 设计 / QA 产物
 │   └── team/             #   AI 团队协作流程与角色定义
 ├── .githooks/            # 提交钩子（提交前自动格式化）
-├── .github/              # CI 工作流（release-please 等）
+├── .github/              # CI 与发布工作流（ci、release）
 └── .codex/rules/         # 项目级命令授权规则
 ```
 

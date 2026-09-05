@@ -20,7 +20,7 @@
 | 修改主密码 | 2026-08-26 | 仅重新包装 DEK，不重加密全库 |
 | Linux 桌面端打包（AppImage / deb 等） | 2026-08-26 | 含方形应用图标修复 |
 | 界面显示应用版本号 | 2026-08-28 | 版本号单一来源：根 `Cargo.toml` |
-| 自动版本管理（release-please） | 2026-08-28 | 合并 master 后自动升版 / CHANGELOG / tag |
+| 自动版本管理（git-flow + 周三定时发布） | 2026-08-28 | 自动升版 / CHANGELOG / 构建上传 GitHub Release |
 | 提交前自动格式化（cargo fmt + Prettier） | 2026-08-28 | 含 CI 格式校验兜底 |
 | 仓库规范与文档（AGENTS.md、git 授权规则） | 2026-08-26 | 「提交信息一律中文」约定于 2026-08-28 补充 |
 | AI 团队与协作流程（docs/team） | 2026-08-29 | 7 角色定义 + DSH workflow 编排（docs/team/） |

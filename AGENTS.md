@@ -26,7 +26,7 @@
 - `app/ui/` — 前端源码
 - 测试归属各包：Rust 集成测试在 `core/tests/`，前端测试与 E2E 在 `app/` 内，顶层不设统一 `tests/` 目录
 - `assets/` — 仅放共享示例/演示数据；应用图标在 `src-tauri/icons/`，UI 图片在 `app/ui/assets/`
-- `docs/` — 设计文档（`architecture.md`、`format.md`、`task-list.md` 功能任务清单）
+- `docs/` — 设计文档与团队规范（`architecture.md`、`format.md`、`task-list.md`、`team.md`、`backlog.md`、`tasks/`）
 - 根目录 — `Cargo.toml`（workspace，成员 `core` 与 `app/src-tauri`）、`README.md`、`.gitignore`、`.codex/rules/`
 
 核心规则：安全与业务逻辑只进 `core/`，UI 与平台代码不得包含密码逻辑；`core/` 保持框架无关，为将来以 UniFFI 绑定原生移动壳留退路。
@@ -72,23 +72,25 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 ## 开发流程
 
-- 功能开发一律使用 `git worktree`：从干净的 `master` 拉出独立工作目录与分支，不在 `master` 工作区直接改代码。示例：`git worktree add ../passwd-x-task-auto-lock -b task-auto-lock`
-- 分支命名：`task-<改造点，2-3 个英文小写单词，用连字符分隔>`，例如 `task-auto-lock`、`task-mobile-build`、`task-docs-task-list`
-- 双代理流程由个人 skill 指导：`task-developer` 负责开发（worktree、检查、创建 PR），`pr-approver` 负责审批（安全审查、bot 身份 approve 与合并），位于 `~/.codex/skills/`
-- 多角色任务（跨 core / src-tauri / ui 的正式功能）由 AI 团队承接：7 个角色（PM、PjM、架构师、后端、前端、QA、Review）按 `docs/team/flow.md` 协作，DSH workflow 编排脚本见 `docs/team/workflow.mjs`，角色职责与 Prompt 模板在 `docs/team/roles/`
-- 开发完成并在该 worktree 内通过全部检查（`cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`）后，推送分支并创建 PR（标题与摘要使用中文）；合并到 `master` 必须走 PR
-- PR 合并后清理：删除对应 worktree（`git worktree remove`），并删除本地与远程分支
+团队由 7 个角色 skill（`~/.codex/skills/`）承担，职责与阶段流转见 `docs/team.md`：`team-pm`（产品经理）、`team-pjm`（项目经理）、`team-architect`（系统架构师）、`team-developer`（开发，可多实例并行）、`team-tester`（测试）、`team-pr-reviewer`（PR 审核员）、`team-release-ops`（系统运维/发布）。
+
+- 需求入口：`team-pm` 把用户需求实时写入 `docs/backlog.md`；`team-pjm` 拆分、排期并分派任务。
+- 任务执行：`team-architect` 按分支模型建分支并产出 `docs/tasks/<slug>/design.md` 与 `test-plan.md`；`team-tester` 编写单元测试，`team-developer` 按设计实现；测试与开发都完成后创建 PR。
+- 分支模型（master-dev-release-hotfix）：`master` 稳定、`dev` 集成、`feature/<slug>` 自 dev、`release/<semver>` 自 dev、`hotfix/<slug>` 自 master。
+- 工作区隔离：`git worktree add .worktrees/<branch> -b <branch>`（沙箱只允许写仓库目录）。
+- 质量门禁（合并前全部通过）：`cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`。
+- PR 由 `team-pr-reviewer` 审查并合并：`feature/*`→`dev`；`release/*`→`master` 后回并 `dev`；`hotfix/*` 同理。
 
 ## 提交与拉取请求指南
 
 提交遵循 Conventional Commits 规范：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`chore:`。**提交信息（标题与正文）一律使用中文**，类型前缀按规范保留英文（如 `feat: 增加导出功能`）。提交应小而聚焦，标题使用祈使句并控制在 72 个字符以内。拉取请求应有清晰的标题与摘要，关联相关 issue；涉及界面或视觉变更时应附上截图，合并前必须通过测试与 lint 检查。提交前会自动执行 `cargo fmt` 与 Prettier 格式化（钩子在 `.githooks/pre-commit`，首次克隆后需执行 `git config core.hooksPath .githooks` 启用）。
 
-## 版本管理
+## 版本与发布
 
-- 版本号唯一来源是根 `Cargo.toml` 的 `[workspace.package].version`；`app/src-tauri/tauri.conf.json` 不再写版本（打包时自动从 Cargo.toml 读取），`app/package.json` 由 release-please 同步
-- 每次合并到 `master` 后，release-please（GitHub Actions）扫描 Conventional Commits，自动创建/更新 release PR：升版本号并维护根目录 `CHANGELOG.md`；合并该 PR 后自动打 `vX.Y.Z` tag 并创建 GitHub Release
-- 版本策略：1.0 之前 `feat:` 与破坏性变更升 minor、`fix:` 升 patch；1.0 之后按标准 SemVer
-- 界面显示的版本号通过 Tauri `getVersion()` 从构建产物读取，无需手工维护
+- 版本号唯一来源是根 `Cargo.toml` 的 `[workspace.package].version`（`app/src-tauri/tauri.conf.json` 不再写版本，打包时自动读取）。
+- git-flow 发布：`team-release-ops` 维护 `.github/workflows/release.yml`；每周三北京时间 10:00（cron `0 2 * * 3`）自动计算版本、更新 `CHANGELOG.md`、构建桌面产物并上传 GitHub Release；手动发布先运行 `node scripts/release-prepare.mjs` 再触发 `workflow_dispatch`。
+- 版本策略：1.0 之前 `feat:` 与破坏性变更升 minor、`fix:` 升 patch；1.0 之后按标准 SemVer。
+- 界面显示的版本号通过 Tauri `getVersion()` 从构建产物读取，无需手工维护。
 
 ## 安全与配置提示
 
