@@ -17,24 +17,24 @@
 ## 分支模型（Git Flow 轻量）
 
 ```text
-master ───────────────●──────────────●  稳定生产，只接收 release/* 与 hotfix/*
+master ───────────────●──────────────●  稳定生产，只接收 release/* 与 hotfix-*
                         ↖            ↖
-dev ─────●────●────●───┴────●───────┴  集成分支，接收 feature/*
+dev ─────●────●────●───┴────●───────┴  集成分支，接收 feature-*
          ↑    ↑    ↑        ↑
-  feature/a feature/b feature/c  release/0.3.0（自 dev）
+  feature-password-gen feature-export feature-search  release/0.3.0（自 dev）
 ```
 
-- `feature/<slug>`：功能任务，自 `dev` 拉出，完成后 PR 回 `dev`。
+- `feature-<2-4 词>`：功能任务，自 `dev` 拉出，完成后 PR 回 `dev`。
 - `release/<semver>`：发布准备，自 `dev` 拉出，完成后 PR 到 `master`（打 tag），再回并 `dev`。
-- `hotfix/<slug>`：紧急修复，自 `master` 拉出，完成后 PR 到 `master`（打 tag），再回并 `dev`。
+- `hotfix-<2-4 词>`：紧急修复，自 `master` 拉出，完成后 PR 到 `master`（打 tag），再回并 `dev`。
 
 **轻量原则**：
 
 - `release/*` 只在真正发版那一周从 `dev` 切出，合并后立即清理，不长期并行。
-- `feature/*` 短命：一个任务一个分支，合并即删。
-- `hotfix/*` 保留：从 `master` 出、修完合 `master` 并回并 `dev`，是版本化产品最有价值的部分。
+- `feature-*` 短命：一个任务一个分支，合并即删。
+- `hotfix-*` 保留：从 `master` 出、修完合 `master` 并回并 `dev`，是版本化产品最有价值的部分。
 
-**进一步简化（可选）**：若想更接近 trunk-based，可去掉长期 `dev`，以 `master` 为唯一主干，`feature/*` 直接 PR 回 `master`，仅在发版周切 `release/<semver>`。
+**进一步简化（可选）**：若想更接近 trunk-based，可去掉长期 `dev`，以 `master` 为唯一主干，`feature-*` 直接 PR 回 `master`，仅在发版周切 `release/<semver>`。
 
 ## 阶段流转
 
@@ -42,7 +42,7 @@ dev ─────●────●────●───┴────●�
 2. 排期：`team-pjm` 拆分任务卡并分派（状态 `已规划`）。
 3. 设计与分支：`team-architect` 建分支，产出 `design.md` + `test-plan.md`。
 4. 实现与测试：`team-tester` 与 `team-developer` 并行推进（状态 `开发中`/`测试中`）。
-5. 创建 PR：测试与开发都完成后，`feature/<slug>` → `dev`。
+5. 创建 PR：测试与开发都完成后，`feature-<2-4 词>` → `dev`。
 6. 审核合并：`team-pr-reviewer` 审查质量与安全并合并（状态 `已发布`）。
 
 ## 质量门禁（合并前必须全部通过）

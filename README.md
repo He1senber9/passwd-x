@@ -36,10 +36,10 @@ gitGraph
    commit id: "v0.1.0"
    branch dev
    commit
-   branch feature/a
+   branch feature-password-generator
    commit id: "功能开发"
    checkout dev
-   merge feature/a
+   merge feature-password-generator
    branch release/0.2.0
    commit id: "版本号 + changelog"
    checkout master
@@ -47,21 +47,21 @@ gitGraph
    checkout dev
    merge release/0.2.0
    checkout master
-   branch hotfix/b
+   branch hotfix-login-crash
    commit id: "紧急修复"
    checkout master
-   merge hotfix/b tag: "v0.2.1"
+   merge hotfix-login-crash tag: "v0.2.1"
    checkout dev
-   merge hotfix/b
+   merge hotfix-login-crash
 ```
 
-- `master`：稳定生产分支，只接收 `release/*` 与 `hotfix/*`，合并时打 tag。
-- `dev`：集成分支，`feature/*` 完成后合入这里。
-- `feature/*`：功能分支，从 `dev` 拉出，完成后 PR 回 `dev`。
+- `master`：稳定生产分支，只接收 `release/*` 与 `hotfix-*`，合并时打 tag。
+- `dev`：集成分支，`feature-*` 完成后合入这里。
+- `feature-<2-4 词>`：功能分支，从 `dev` 拉出，完成后 PR 回 `dev`。
 - `release/*`：发布分支，从 `dev` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
-- `hotfix/*`：热修复分支，从 `master` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
+- `hotfix-<2-4 词>`：热修复分支，从 `master` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
 
-本项目按 Git Flow 的轻量用法运行：`release/*` 只在发版那一周从 `dev` 切出，`feature/*` 短命、合并即删；如需进一步简化，可去掉 `dev`，以 `master` 为唯一主干。
+本项目按 Git Flow 的轻量用法运行：`release/*` 只在发版那一周从 `dev` 切出，`feature-*` 短命、合并即删；如需进一步简化，可去掉 `dev`，以 `master` 为唯一主干。
 
 ## 版本与发布
 
