@@ -6,7 +6,7 @@
 
 - `core/` — 与平台无关的安全与业务逻辑（加密、保险库格式、数据模型）
 - `app/` — Tauri 2 应用（后端 `src-tauri/`，前端 `ui/`）
-- `docs/` — 架构、数据格式与功能任务清单文档
+- `docs/` — 架构、数据格式、功能任务清单与 AI 团队规范
 
 ## 开发命令
 
@@ -28,10 +28,10 @@ Linux 桌面端需先安装 Tauri 的系统开发包（webkit2gtk-4.1、gtk-3、
 
 ## 开发流程
 
-功能开发使用 `git worktree` 创建独立工作目录与 `task-<改造点>` 分支，开发并测试完成后推送分支、创建 PR 合并到 `master`。详见 `AGENTS.md`。
+AI 团队以角色 skill 协作：产品经理维护待办，项目经理排期，系统架构师按 master-dev-release-hotfix 建分支并产出设计文档，开发与测试并行实现，PR 审核员把关合并。详见 `AGENTS.md` 与 `docs/team.md`。
 
 ## 版本与发布
 
-版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。每次合并到 `master` 后，release-please 会自动创建/更新 release PR（升版本号、更新 `CHANGELOG.md`），合并该 PR 即打 `vX.Y.Z` tag 并发布。
+版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。系统运维每周三北京时间 10:00 通过 GitHub Actions 自动构建 release、更新 `CHANGELOG.md` 并上传到 GitHub Release（支持手动触发）。
 
 详见 `AGENTS.md` 与 `docs/architecture.md`。
