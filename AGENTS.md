@@ -76,7 +76,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 - 需求入口：`team-pm` 把用户需求实时写入 `docs/backlog.md`；`team-pjm` 拆分、排期并分派任务。
 - 任务执行：`team-architect` 按分支模型建分支并产出 `docs/tasks/<slug>/design.md` 与 `test-plan.md`；`team-tester` 编写单元测试，`team-developer` 按设计实现；测试与开发都完成后创建 PR。
-- 分支模型（master-dev-release-hotfix）：`master` 稳定、`dev` 集成、`feature/<slug>` 自 dev、`release/<semver>` 自 dev、`hotfix/<slug>` 自 master。
+- 分支模型（Git Flow 轻量）：`master` 稳定、`dev` 集成、`feature/<slug>` 自 dev、`release/<semver>` 自 dev、`hotfix/<slug>` 自 master；`release/*` 只在发版那一周从 dev 切出、不长期并行，`feature/*` 短命、合并即删。
 - 工作区隔离：`git worktree add .worktrees/<branch> -b <branch>`（沙箱只允许写仓库目录）。
 - 质量门禁（合并前全部通过）：`cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`。
 - PR 由 `team-pr-reviewer` 审查并合并：`feature/*`→`dev`；`release/*`→`master` 后回并 `dev`；`hotfix/*` 同理。

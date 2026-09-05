@@ -61,6 +61,8 @@ gitGraph
 - `release/*`：发布分支，从 `dev` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
 - `hotfix/*`：热修复分支，从 `master` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
 
+本项目按 Git Flow 的轻量用法运行：`release/*` 只在发版那一周从 `dev` 切出，`feature/*` 短命、合并即删；如需进一步简化，可去掉 `dev`，以 `master` 为唯一主干。
+
 ## 版本与发布
 
 版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。系统运维每周三北京时间 10:00 通过 GitHub Actions 自动构建 release、更新 `CHANGELOG.md` 并上传到 GitHub Release（支持手动触发）。
