@@ -2627,7 +2627,7 @@ dependencies = [
 
 [[package]]
 name = "passwd-x-app"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "keyring",
  "passwd-x-core",
@@ -2642,7 +2642,7 @@ dependencies = [
 
 [[package]]
 name = "passwd-x-core"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "argon2",
  "chacha20poly1305",
