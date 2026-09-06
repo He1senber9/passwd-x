@@ -52,7 +52,7 @@ V2 及以后：自动填充、云同步、生物识别解锁、搜索/分类/标
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo fmt --check`
 
-Linux 桌面端编译 Tauri 需要系统开发包：`pkg-config`、`libwebkit2gtk-4.1-dev`、`libgtk-3-dev`、`libsoup-3.0-dev`、`libjavascriptcoregtk-4.1-dev`（含其传递依赖）。前端与 Tauri 命令在 `app/` 目录运行：
+Linux 桌面端编译 Tauri 需要系统开发包：`pkg-config`、`libwebkit2gtk-4.1-dev`、`libgtk-3-dev`、`libsoup-3.0-dev`、`libjavascriptcoregtk-4.1-dev`（含其传递依赖）。构建安装包（`npm run tauri build`）需要提供更新签名私钥环境变量 `TAURI_SIGNING_PRIVATE_KEY`（或 `TAURI_SIGNING_PRIVATE_KEY_PATH`），否则无法生成 updater 签名产物。前端与 Tauri 命令在 `app/` 目录运行：
 
 - `npm install`
 - `npm run dev` — 仅启动 Vite 开发服务器
@@ -89,7 +89,8 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 ## 版本与发布
 
 - 版本号唯一来源是根 `Cargo.toml` 的 `[workspace.package].version`（`app/src-tauri/tauri.conf.json` 不再写版本，打包时自动读取）。
-- git-flow 发布：`team-release-ops` 维护 `.github/workflows/release.yml`；每周三北京时间 10:00（cron `0 2 * * 3`）自动计算版本、更新 `CHANGELOG.md`、构建桌面产物并上传 GitHub Release；手动发布先运行 `node scripts/release-prepare.mjs` 再触发 `workflow_dispatch`。
+- git-flow 发布：`team-release-ops` 维护 `.github/workflows/release.yml`；每周三北京时间 10:00（cron `0 2 * * 3`）自动计算版本、更新 `CHANGELOG.md`、切 `release/<semver>` 分支、打 tag 创建 GitHub Release 并开 PR 到 master；签名构建与上传由 `.github/workflows/release-updater.yml` 在 Release 发布后执行。手动发布先运行 `node scripts/release-prepare.mjs` 再触发 `workflow_dispatch`。
+- 应用内自动更新使用 Tauri updater 插件：Release 发布后由 `release-updater` 工作流构建三平台安装包、签名并上传 `latest.json`；签名私钥只存于 GitHub Secret `TAURI_SIGNING_PRIVATE_KEY`，公钥写于 `app/src-tauri/tauri.conf.json`。
 - 版本策略：1.0 之前 `feat:` 与破坏性变更升 minor、`fix:` 升 patch；1.0 之后按标准 SemVer。
 - 界面显示的版本号通过 Tauri `getVersion()` 从构建产物读取，无需手工维护。
 
@@ -99,6 +100,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 - 严禁提交密钥、API Key、主密码或任何真实用户数据
 - 敏感数据必须使用系统安全存储（如 iOS Keychain、Android Keystore、桌面系统凭据库）
+- 更新签名私钥只存于 GitHub Secret `TAURI_SIGNING_PRIVATE_KEY`，公钥可入库；私钥丢失将无法继续向已安装用户发布更新
 - 在 `.gitignore` 中添加本地配置与环境文件的忽略规则（例如 `.env`、`*.local`）
 - `assets/` 中的示例数据仅用于演示，绝不能包含真实凭据
 - 日志与错误信息不得包含敏感内容
