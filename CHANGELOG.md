@@ -2,28 +2,15 @@
 
 ## 0.4.0 (2026-09-06)
 
-- Merge pull request #27 from He1senber9/feature-slim-agents
 - docs: 精简 AGENTS.md 并下沉工程规范到 docs/engineering.md
-- Merge pull request #26 from He1senber9/feature-role-decouple
 - refactor: 角色 skill 与项目流程解耦为通用模板
-- Merge pull request #25 from He1senber9/feature-flow-dev-base
 - docs: 明确 feature 分支基于 dev 且 PR 合入 dev
-- Merge pull request #24 from He1senber9/feature-master-sync
-- Merge pull request #23 from He1senber9/feature-dev-sync
-- merge: 同步 dev 的 AI 团队 skill 入库到 master
-- Merge pull request #22 from He1senber9/feature-team-intake
 - docs: 约定所有需求经 AI 团队对接
-- Merge pull request #21 from He1senber9/feature-vault-create-flow
 - chore: 同步锁文件版本到 0.3.0
 - feat: 首次使用才显示创建密码库，已有保险库仅解锁
-- Merge pull request #20 from He1senber9/feature-ci-deps
 - fix: ci 的 Rust 步骤安装 Tauri 系统依赖
-- Merge pull request #19 from He1senber9/feature-test-badges
 - feat: 首页增加 CI 与 Rust 测试通过率徽章
 - chore: 将 AI 团队角色 skill 纳入仓库版本管理 (#18)
-- Merge pull request #17 from He1senber9/feature-promote-dev
-- Merge pull request #16 from He1senber9/feature-sync-master
-- merge: 同步 master 自动更新功能并统一发布工作流
 - chore: 强制约定 feature-/hotfix- 分支命名并增加 CI 校验 (#15)
 - docs: 将分支流程简化为轻量 Git Flow (#14)
 - fix: 修复 README 分支图的主分支名 (#13)
