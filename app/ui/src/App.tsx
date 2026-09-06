@@ -7,8 +7,6 @@ import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api } from "./api";
 import type { Entry, EntryInput, VaultStatus } from "./types";
 
-type LockedMode = "unlock" | "create";
-
 const emptyForm: EntryInput = {
   title: "",
   username: "",
@@ -21,8 +19,7 @@ export default function App() {
   const [status, setStatus] = useState<VaultStatus | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [version, setVersion] = useState<string | null>(null);
-
-  const [mode, setMode] = useState<LockedMode>("unlock");
+  const creating = status !== null && !status.unlocked && !status.hasVault;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [remember, setRemember] = useState(false);
@@ -49,9 +46,6 @@ export default function App() {
   const refresh = useCallback(async () => {
     const next = await api.status();
     setStatus(next);
-    if (!next.unlocked) {
-      setMode(next.hasVault ? "unlock" : "create");
-    }
     setEntries(next.unlocked ? await api.listEntries() : []);
   }, []);
 
@@ -79,7 +73,7 @@ export default function App() {
 
   const submitLocked = () =>
     run(async () => {
-      if (mode === "create") {
+      if (creating) {
         if (password !== confirm) throw new Error("两次输入的密码不一致");
         if (password.length < 8) throw new Error("主密码至少需要 8 个字符");
         await api.createVault(password, remember);
@@ -225,22 +219,11 @@ export default function App() {
             本地加密保险库{version ? ` · v${version}` : ""}
           </p>
 
-          <div className="tabs">
-            {status.hasVault && (
-              <button
-                className={mode === "unlock" ? "active" : ""}
-                onClick={() => setMode("unlock")}
-              >
-                解锁
-              </button>
-            )}
-            <button
-              className={mode === "create" ? "active" : ""}
-              onClick={() => setMode("create")}
-            >
-              新建保险库
-            </button>
-          </div>
+          {creating ? (
+            <p className="muted">首次使用：请设置主密码创建本地加密保险库</p>
+          ) : (
+            <p className="muted">保险库已创建，请输入主密码解锁</p>
+          )}
 
           <input
             type="password"
@@ -249,7 +232,7 @@ export default function App() {
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
           />
-          {mode === "create" && (
+          {creating && (
             <input
               type="password"
               placeholder="再次输入主密码"
@@ -268,9 +251,9 @@ export default function App() {
           </label>
 
           <button disabled={busy} onClick={submitLocked} className="primary">
-            {mode === "create" ? "创建并解锁" : "解锁"}
+            {creating ? "创建并解锁" : "解锁"}
           </button>
-          {mode === "unlock" && status.hasVault && (
+          {status.hasVault && (
             <button
               disabled={busy}
               onClick={unlockRemembered}
