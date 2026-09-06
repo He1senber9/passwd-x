@@ -141,6 +141,9 @@ pub fn create_vault(
     state: State<'_, VaultState>,
     request: CreateVaultRequest,
 ) -> Result<VaultStatus, String> {
+    if vault_file_exists(&app) {
+        return Err("保险库已存在，请直接解锁".into());
+    }
     let params = KdfParams::default();
     let (vault, bytes) =
         passwd_x_core::create_vault(&request.password, &params).map_err(|e| e.to_string())?;
