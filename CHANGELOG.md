@@ -6,6 +6,22 @@
 - fix: 创建保险库遇已存在时自动切换到解锁页
 - fix: changelog 排除合并提交与 release 自引提交
 
+## 0.4.0 (2026-09-06)
+
+- docs: 精简 AGENTS.md 并下沉工程规范到 docs/engineering.md
+- refactor: 角色 skill 与项目流程解耦为通用模板
+- docs: 明确 feature 分支基于 dev 且 PR 合入 dev
+- docs: 约定所有需求经 AI 团队对接
+- chore: 同步锁文件版本到 0.3.0
+- feat: 首次使用才显示创建密码库，已有保险库仅解锁
+- fix: ci 的 Rust 步骤安装 Tauri 系统依赖
+- feat: 首页增加 CI 与 Rust 测试通过率徽章
+- chore: 将 AI 团队角色 skill 纳入仓库版本管理 (#18)
+- chore: 强制约定 feature-/hotfix- 分支命名并增加 CI 校验 (#15)
+- docs: 将分支流程简化为轻量 Git Flow (#14)
+- fix: 修复 README 分支图的主分支名 (#13)
+- docs: 在 README 增加分支开发流程图 (#12)
+- chore: 从零重配 AI 团队与 git-flow 发布流程 (#11)
 ## [0.3.0](https://github.com/He1senber9/passwd-x/compare/v0.2.0...v0.3.0) (2026-09-04)
 
 
