@@ -37,6 +37,7 @@ export default function App() {
 
   const [updateInfo, setUpdateInfo] = useState<Update | null>(null);
   const [updateDialog, setUpdateDialog] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [updateProgress, setUpdateProgress] = useState<{
     downloaded: number;
     total: number;
@@ -174,6 +175,7 @@ export default function App() {
 
   const checkUpdate = () =>
     run(async () => {
+      setChecking(true);
       setUpdateNotice("正在检查更新…");
       try {
         const update = await Promise.race([
@@ -197,6 +199,8 @@ export default function App() {
       } catch (err) {
         setUpdateNotice("");
         throw err;
+      } finally {
+        setChecking(false);
       }
     });
 
@@ -291,6 +295,7 @@ export default function App() {
 
           <div className="row between update-footer">
             <button disabled={busy} onClick={checkUpdate} className="ghost">
+              {checking && <span className="spinner" aria-hidden="true" />}
               检查更新
             </button>
             {updateNotice && <span className="muted">{updateNotice}</span>}
@@ -310,6 +315,7 @@ export default function App() {
         </h1>
         <div className="spacer" />
         <button onClick={checkUpdate} disabled={busy}>
+          {checking && <span className="spinner" aria-hidden="true" />}
           检查更新
         </button>
         <button onClick={() => setChangingPassword(true)}>修改主密码</button>
