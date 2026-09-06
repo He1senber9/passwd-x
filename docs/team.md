@@ -52,6 +52,8 @@ dev ─────●────●────●───┴────●�
 5. 创建 PR：测试与开发都完成后，`feature-<2-4 词>` → `dev`。
 6. 审核合并：`team-pr-reviewer` 审查质量与安全并合并（状态 `已发布`）。
 
+> 注意：`feature-*` 一律基于 `dev` 并合入 `dev`；`master` 只接收 `release/*`（发版）与 `hotfix/*`（紧急修复）。
+
 ## 质量门禁（合并前必须全部通过）
 
 `cargo fmt --check`、`cargo clippy --workspace --all-targets -- -D warnings`、`cargo test --workspace`、`npm run format:check`、`npm run build`。PR 审核员对 P0/P1 问题一票否决。
