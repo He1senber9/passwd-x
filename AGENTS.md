@@ -72,7 +72,7 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 ## 开发流程
 
-团队由 7 个角色 skill（`~/.codex/skills/`）承担，职责与阶段流转见 `docs/team.md`：`team-pm`（产品经理）、`team-pjm`（项目经理）、`team-architect`（系统架构师）、`team-developer`（开发，可多实例并行）、`team-tester`（测试）、`team-pr-reviewer`（PR 审核员）、`team-release-ops`（系统运维/发布）。
+团队由 7 个角色 skill 承担，职责与阶段流转见 `docs/team.md`：`team-pm`（产品经理）、`team-pjm`（项目经理）、`team-architect`（系统架构师）、`team-developer`（开发，可多实例并行）、`team-tester`（测试）、`team-pr-reviewer`（PR 审核员）、`team-release-ops`（系统运维/发布）。角色规范源码在本仓库 `.codex/skills/`（随项目版本管理），本机使用需安装到 `~/.codex/skills/`，见 `docs/team.md`。
 
 - 需求入口：`team-pm` 把用户需求实时写入 `docs/backlog.md`；`team-pjm` 拆分、排期并分派任务。
 - 任务执行：`team-architect` 按分支模型建分支并产出 `docs/tasks/<slug>/design.md` 与 `test-plan.md`；`team-tester` 编写单元测试，`team-developer` 按设计实现；测试与开发都完成后创建 PR。
