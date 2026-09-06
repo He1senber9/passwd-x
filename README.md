@@ -1,5 +1,8 @@
 # passwd-x
 
+![CI](https://github.com/He1senber9/passwd-x/actions/workflows/ci.yml/badge.svg)
+![Rust 测试](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/He1senber9/passwd-x/gh-badges/badge.json)
+
 跨平台密码管理 App（Tauri 2 + Rust 核心），当前处于早期开发阶段。
 
 ## 项目结构
