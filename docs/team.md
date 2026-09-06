@@ -1,6 +1,6 @@
 # AI 团队与开发流程
 
-本文件是 passwd-x AI 软件团队的宪法，定义角色、分支模型、协作阶段与发布排程。角色以 Codex skill 落地于 `~/.codex/skills/`，仓库始终生效的硬性规范见 `AGENTS.md`。
+本文件是 passwd-x AI 软件团队的宪法，定义角色、分支模型、协作阶段与发布排程。角色以 Codex skill 落地：规范源码在本仓库 `.codex/skills/`（随项目版本管理），本机使用需安装到 `~/.codex/skills/`；仓库始终生效的硬性规范见 `AGENTS.md`。
 
 ## 角色
 
@@ -13,6 +13,13 @@
 | 测试 | `team-tester` | 编写单元测试、跑门禁、出报告 | `docs/tasks/<slug>/test-report.md` |
 | PR 审核员 | `team-pr-reviewer` | 代码质量与安全审查、合并 PR | `docs/tasks/<slug>/review.md` |
 | 系统运维 | `team-release-ops` | 定时/手动发布，构建并上传 GitHub | `CHANGELOG.md`、Release 产物 |
+
+## 角色 skill 安装
+
+角色 skill 的规范源码随仓库维护在 `.codex/skills/`（更新规范后请同步到仓库并重新安装）。克隆仓库后本机安装方式：
+
+- 用 Codex 的 skill-installer 安装：`install-skill-from-github.py --repo He1senber9/passwd-x --path .codex/skills/team-pm .codex/skills/team-pjm .codex/skills/team-architect .codex/skills/team-developer .codex/skills/team-tester .codex/skills/team-pr-reviewer .codex/skills/team-release-ops`
+- 或直接把 `.codex/skills/team-*` 目录复制到 `~/.codex/skills/`。
 
 ## 分支模型（Git Flow 轻量）
 
@@ -51,10 +58,10 @@ dev ─────●────●────●───┴────●�
 
 ## 发布排程
 
-`team-release-ops` 通过 `.github/workflows/release.yml` 每周三北京时间 10:00（UTC cron `0 2 * * 3`）自动：计算版本号 → 更新 `CHANGELOG.md` → 构建 Linux/macOS/Windows 桌面包 → 创建 GitHub Release 并上传。无新提交时自动跳过；需要立即发布可手动触发 `workflow_dispatch`。
+`team-release-ops` 维护发布流水线：`.github/workflows/release.yml` 每周三北京时间 10:00（UTC cron `0 2 * * 3`）自动计算版本号、更新 `CHANGELOG.md`、切 `release/<semver>`、打 tag 创建 GitHub Release 并开 PR 到 master；`.github/workflows/release-updater.yml` 在 Release 发布后构建签名安装包并上传。无新提交时自动跳过；需要立即发布可手动触发 `workflow_dispatch`。
 
 ## 与 AGENTS.md / skill 的关系
 
 - `AGENTS.md`：所有角色共用的硬性规则（命令、安全、提交约定），每次会话自动加载。
 - 本文件：团队结构与人读规范。
-- `~/.codex/skills/team-*`：每个角色的可执行提示词，触发对应任务时加载。
+- `.codex/skills/team-*`：每个角色的可执行提示词（规范源码，随仓库版本管理）；安装到 `~/.codex/skills/` 后由 Codex 在触发对应任务时加载。
