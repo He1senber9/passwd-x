@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 (2026-09-07)
+
+- feat: 应用单实例限制（多开时聚焦已有窗口）
+- fix: 创建保险库遇已存在时自动切换到解锁页
+- fix: changelog 排除合并提交与 release 自引提交
+
 ## [0.3.0](https://github.com/He1senber9/passwd-x/compare/v0.2.0...v0.3.0) (2026-09-04)
 
 
