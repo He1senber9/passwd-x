@@ -25,11 +25,12 @@ const current = match[1];
 const lastTag = git(["describe", "--tags", "--abbrev=0"]);
 const subjects = git([
   "log",
+  "--no-merges",
   "--format=%s",
   lastTag ? `${lastTag}..HEAD` : "HEAD",
 ])
   .split("\n")
-  .filter(Boolean);
+  .filter((s) => Boolean(s) && !/^chore\(release\):/.test(s));
 
 if (subjects.length === 0) {
   console.log("NOCHANGE");
