@@ -76,7 +76,17 @@ export default function App() {
       if (creating) {
         if (password !== confirm) throw new Error("两次输入的密码不一致");
         if (password.length < 8) throw new Error("主密码至少需要 8 个字符");
-        await api.createVault(password, remember);
+        try {
+          await api.createVault(password, remember);
+        } catch (err) {
+          // 保险库已存在（可能是其他实例先创建或残留数据）：刷新状态切换到解锁页
+          if (String(err).includes("已存在")) {
+            setPassword("");
+            setConfirm("");
+            await refresh();
+          }
+          throw err;
+        }
       } else {
         await api.unlockVault(password, remember);
       }
