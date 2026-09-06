@@ -72,7 +72,15 @@ Rust 测试使用标准 `#[test]`：单元测试随源码模块存放，集成�
 
 ## 开发流程
 
-团队由 7 个角色 skill（`~/.codex/skills/`）承担，职责与阶段流转见 `docs/team.md`：`team-pm`（产品经理）、`team-pjm`（项目经理）、`team-architect`（系统架构师）、`team-developer`（开发，可多实例并行）、`team-tester`（测试）、`team-pr-reviewer`（PR 审核员）、`team-release-ops`（系统运维/发布）。
+团队由 7 个角色 skill 承担（规范源码在仓库 `.codex/skills/`，本机使用需安装到 `~/.codex/skills/`，见 `docs/team.md`）：`team-pm`（产品经理）、`team-pjm`（项目经理）、`team-architect`（系统架构师）、`team-developer`（开发，可多实例并行）、`team-tester`（测试）、`team-pr-reviewer`（PR 审核员）、`team-release-ops`（系统运维/发布）。
+
+## 需求对接（AI 团队）
+
+- 所有涉及项目变更的需求（新功能、界面/逻辑调整、缺陷修复、优化等）**默认通过 AI 团队处理**，不直接由主代理实现：先登记，再按团队流程执行。
+- 用户只需用自然语言提出需求（可附带优先级），PM（`team-pm`）负责澄清并实时写入 `docs/backlog.md`（状态 `待规划`）。
+- 例外（不需要完整团队流程）：纯咨询/答疑/状态查询；用户明确声明「直接处理/小改」的琐碎改动；紧急 `hotfix-*` 走精简流程（PjM 直派 + 开发/测试 + 审核）。
+- 流转：PjM 拆分排期 → 架构师基于当前主干（`master`）建分支并产出 `docs/tasks/<slug>/design.md`、`test-plan.md` → 测试写单元测试、开发实现 → 测试与开发完成后创建 PR → PR 审核员审查合并。
+- 每阶段产物（backlog、任务文档、PR）都留在仓库，用户可随时审阅；用户是最终需求方与验收人。
 
 - 需求入口：`team-pm` 把用户需求实时写入 `docs/backlog.md`；`team-pjm` 拆分、排期并分派任务。
 - 任务执行：`team-architect` 按分支模型建分支并产出 `docs/tasks/<slug>/design.md` 与 `test-plan.md`；`team-tester` 编写单元测试，`team-developer` 按设计实现；测试与开发都完成后创建 PR。
