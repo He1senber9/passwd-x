@@ -50,6 +50,9 @@ jobs:
           git tag "v$VERSION"
           git push origin "v$VERSION"
           gh release create "v$VERSION" --title "passwd-x v$VERSION" --notes "$(cat CHANGELOG.md)"
+          curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            -d '{"event_type":"release-created"}' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/dispatches"
       - name: 创建 PR 到 master
         if: steps.bump.outputs.version != 'NOCHANGE'
         env:

@@ -3,12 +3,49 @@ name: release-updater
 on:
   release:
     types: [published]
+  repository_dispatch:
+    types: [release-created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 需要构建上传的 Release tag（如 v0.4.0）
+        required: true
 
 permissions:
   contents: write
 
 jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      releaseId: ${{ steps.info.outputs.releaseId }}
+      tagName: ${{ steps.info.outputs.tagName }}
+      releaseBody: ${{ steps.info.outputs.releaseBody }}
+    steps:
+      - name: 解析 Release 信息
+        id: info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [ "$GITHUB_EVENT_NAME" = "repository_dispatch" ]; then
+            TAG=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)
+          else
+            TAG="${{ github.event.inputs.tag }}"
+          fi
+          RELEASE_ID=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq .id)
+          echo "releaseId=$RELEASE_ID" >> "$GITHUB_OUTPUT"
+          echo "tagName=$TAG" >> "$GITHUB_OUTPUT"
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq .body > body.md
+          {
+            echo "releaseBody<<EOF"
+            cat body.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
   build:
+    needs: resolve
     strategy:
       fail-fast: false
       matrix:
@@ -54,9 +91,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
-          releaseId: ${{ github.event.release.id }}
-          tagName: ${{ github.event.release.tag_name }}
-          releaseBody: ${{ github.event.release.body || '' }}
+          releaseId: ${{ needs.resolve.outputs.releaseId }}
+          tagName: ${{ needs.resolve.outputs.tagName }}
+          releaseBody: ${{ needs.resolve.outputs.releaseBody }}
           projectPath: app
           args: ${{ matrix.args }}
           updaterJsonPreferNsis: true
