@@ -6,7 +6,7 @@
 
 - `core/` — 与平台无关的安全与业务逻辑（加密、保险库格式、数据模型）
 - `app/` — Tauri 2 应用（后端 `src-tauri/`，前端 `ui/`）
-- `docs/` — 架构、数据格式与功能任务清单文档
+- `docs/` — 架构、数据格式、功能任务清单与 AI 团队规范
 
 ## 开发命令
 
@@ -28,10 +28,43 @@ Linux 桌面端需先安装 Tauri 的系统开发包（webkit2gtk-4.1、gtk-3、
 
 ## 开发流程
 
-功能开发使用 `git worktree` 创建独立工作目录与 `task-<改造点>` 分支，开发并测试完成后推送分支、创建 PR 合并到 `master`。详见 `AGENTS.md`。
+AI 团队以角色 skill 协作：产品经理维护待办，项目经理排期，系统架构师按 master-dev-release-hotfix 建分支并产出设计文档，开发与测试并行实现，PR 审核员把关合并。详见 `AGENTS.md` 与 `docs/team.md`。
+
+```mermaid
+%%{init: { 'gitGraph': { 'mainBranchName': 'master' } } }%%
+gitGraph
+   commit id: "v0.1.0"
+   branch dev
+   commit
+   branch feature-password-generator
+   commit id: "功能开发"
+   checkout dev
+   merge feature-password-generator
+   branch release/0.2.0
+   commit id: "版本号 + changelog"
+   checkout master
+   merge release/0.2.0 tag: "v0.2.0"
+   checkout dev
+   merge release/0.2.0
+   checkout master
+   branch hotfix-login-crash
+   commit id: "紧急修复"
+   checkout master
+   merge hotfix-login-crash tag: "v0.2.1"
+   checkout dev
+   merge hotfix-login-crash
+```
+
+- `master`：稳定生产分支，只接收 `release/*` 与 `hotfix-*`，合并时打 tag。
+- `dev`：集成分支，`feature-*` 完成后合入这里。
+- `feature-<2-4 词>`：功能分支，从 `dev` 拉出，完成后 PR 回 `dev`。
+- `release/*`：发布分支，从 `dev` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
+- `hotfix-<2-4 词>`：热修复分支，从 `master` 拉出，完成后 PR 到 `master`（打 tag）再回并 `dev`。
+
+本项目按 Git Flow 的轻量用法运行：`release/*` 只在发版那一周从 `dev` 切出，`feature-*` 短命、合并即删；如需进一步简化，可去掉 `dev`，以 `master` 为唯一主干。
 
 ## 版本与发布
 
-版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。每次合并到 `master` 后，release-please 会自动创建/更新 release PR（升版本号、更新 `CHANGELOG.md`），合并该 PR 即打 `vX.Y.Z` tag 并发布。
+版本号以根 `Cargo.toml` 的 `[workspace.package].version` 为唯一来源。系统运维每周三北京时间 10:00 通过 GitHub Actions 自动构建 release、更新 `CHANGELOG.md` 并上传到 GitHub Release（支持手动触发）。
 
 详见 `AGENTS.md` 与 `docs/architecture.md`。
