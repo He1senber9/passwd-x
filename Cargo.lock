@@ -791,7 +791,7 @@ dependencies = [
 
 [[package]]
 name = "dtor"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1057d6c64987086ff8ed0fd3fbf377a6b7d205cc7715868cd401705f715cbe4"
 dependencies = [
@@ -2392,7 +2392,7 @@ dependencies = [
 
 [[package]]
 name = "passwd-x-app"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "keyring",
  "passwd-x-core",
@@ -2406,7 +2406,7 @@ dependencies = [
 
 [[package]]
 name = "passwd-x-core"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "argon2",
  "chacha20poly1305",
@@ -4263,7 +4263,7 @@ dependencies = [
 
 [[package]]
 name = "urlpattern"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70acd30e3aa1450bc2eece896ce2ad0d178e9c079493819301573dae3c37ba6d"
 dependencies = [
