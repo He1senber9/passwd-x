@@ -14,6 +14,13 @@
 | PR 审核员 | `team-pr-reviewer` | 代码质量与安全审查、合并 PR | `docs/tasks/<slug>/review.md` |
 | 系统运维 | `team-release-ops` | 定时/手动发布，构建并上传 GitHub | `CHANGELOG.md`、Release 产物 |
 
+## 角色 skill 安装
+
+角色 skill 的规范源码随仓库维护在 `.codex/skills/`（更新规范后请同步到仓库并重新安装）。克隆仓库后本机安装方式：
+
+- 用 Codex 的 skill-installer 安装：`install-skill-from-github.py --repo He1senber9/passwd-x --path .codex/skills/team-pm .codex/skills/team-pjm .codex/skills/team-architect .codex/skills/team-developer .codex/skills/team-tester .codex/skills/team-pr-reviewer .codex/skills/team-release-ops`
+- 或直接把 `.codex/skills/team-*` 目录复制到 `~/.codex/skills/`。
+
 ## 分支模型（Git Flow 轻量）
 
 ```text
