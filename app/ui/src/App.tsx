@@ -37,6 +37,7 @@ export default function App() {
 
   const [updateInfo, setUpdateInfo] = useState<Update | null>(null);
   const [updateDialog, setUpdateDialog] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [updateProgress, setUpdateProgress] = useState<{
     downloaded: number;
     total: number;
@@ -65,6 +66,7 @@ export default function App() {
     try {
       await action();
     } catch (err) {
+      console.error(err);
       setError(String(err));
     } finally {
       setBusy(false);
@@ -173,15 +175,33 @@ export default function App() {
 
   const checkUpdate = () =>
     run(async () => {
-      const update = await check();
-      if (!update) {
-        setUpdateNotice(`已是最新版本（v${version ?? ""}）`);
-        return;
+      setChecking(true);
+      setUpdateNotice("正在检查更新…");
+      try {
+        const update = await Promise.race([
+          check(),
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error("检查更新超时，请检查网络后重试")),
+              15000,
+            ),
+          ),
+        ]);
+        if (!update) {
+          setUpdateNotice(`已是最新版本（v${version ?? ""}）`);
+          return;
+        }
+        console.info("发现新版本", update.version);
+        setUpdateInfo(update);
+        setUpdateProgress(null);
+        setUpdateNotice("");
+        setUpdateDialog(true);
+      } catch (err) {
+        setUpdateNotice("");
+        throw err;
+      } finally {
+        setChecking(false);
       }
-      setUpdateInfo(update);
-      setUpdateProgress(null);
-      setUpdateNotice("");
-      setUpdateDialog(true);
     });
 
   const installUpdate = () =>
@@ -275,6 +295,7 @@ export default function App() {
 
           <div className="row between update-footer">
             <button disabled={busy} onClick={checkUpdate} className="ghost">
+              {checking && <span className="spinner" aria-hidden="true" />}
               检查更新
             </button>
             {updateNotice && <span className="muted">{updateNotice}</span>}
@@ -294,6 +315,7 @@ export default function App() {
         </h1>
         <div className="spacer" />
         <button onClick={checkUpdate} disabled={busy}>
+          {checking && <span className="spinner" aria-hidden="true" />}
           检查更新
         </button>
         <button onClick={() => setChangingPassword(true)}>修改主密码</button>
